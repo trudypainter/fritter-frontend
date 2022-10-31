@@ -62,7 +62,6 @@ export default {
   mounted() {
     this.$refs.getFreetsForm.submit();
 
-    console.log(this.$store.state.username);
     if (this.$store.state.username) {
       fetch(`/api/channels?author=${this.$store.state.username}`, {
         credentials: "same-origin", // Sends express-session credentials with request

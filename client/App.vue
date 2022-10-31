@@ -20,6 +20,7 @@ export default {
     })
       .then((res) => res.json())
       .then((res) => {
+        console.log("USER SESSION", res);
         const user = res.user;
         this.$store.commit("setUsername", user ? user.username : null);
       });

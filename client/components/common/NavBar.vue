@@ -8,7 +8,7 @@
       <router-link to="/"> Fritter </router-link>
     </div>
     <div class="right">
-      <router-link v-if="$store.state.username" to="/account">
+      <router-link v-if="$store.state.username" to="/profile">
         Profile
       </router-link>
       <router-link v-else to="/login"> Login </router-link>
