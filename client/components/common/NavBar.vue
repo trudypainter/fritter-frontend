@@ -5,27 +5,13 @@
 <template>
   <nav>
     <div class="left">
-      <img src="../../public/logo.svg">
-      <h1 class="title">
-        Fritter
-      </h1>
+      <router-link to="/"> Fritter </router-link>
     </div>
     <div class="right">
-      <router-link to="/">
-        Home
+      <router-link v-if="$store.state.username" to="/account">
+        Profile
       </router-link>
-      <router-link
-        v-if="$store.state.username"
-        to="/account"
-      >
-        Account
-      </router-link>
-      <router-link
-        v-else
-        to="/login"
-      >
-        Login
-      </router-link>
+      <router-link v-else to="/login"> Login </router-link>
     </div>
     <section class="alerts">
       <article
@@ -41,41 +27,22 @@
 
 <style scoped>
 nav {
-    padding: 1vw 2vw;
-    background-color: #ccc;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
+  padding: 32px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
 }
 
-.title {
-    font-size: 32px;
-    margin: 0 5px;
-}
-
-img {
-    height: 32px;
-}
-
-.left {
-	display: flex;
-	align-items: center;
-}
-
-.right {
-    font-size: 20px;
-    display: grid;
-    gap: 16px;
-    grid-auto-flow: column;
-    align-items: center;
-}
-
-.right a {
-    margin-left: 5px;
+a {
+  font-size: 28px;
+  text-decoration: none;
+  color: black;
+  font-weight: 900;
+  letter-spacing: -0.8px;
 }
 
 .alerts {
-    width: 25%;
+  width: 25%;
 }
 </style>

@@ -1,19 +1,26 @@
-import type {Request, Response, NextFunction} from 'express';
-import UserCollection from '../user/collection';
+import type { Request, Response, NextFunction } from "express";
+import { Types } from "mongoose";
+import UserCollection from "../user/collection";
 
 /**
  * Checks if the current session user (if any) still exists in the database, for instance,
  * a user may try to post a freet in some browser while the account has been deleted in another or
  * when a user tries to modify an account in some browser while it has been deleted in another
  */
-const isCurrentSessionUserExists = async (req: Request, res: Response, next: NextFunction) => {
+const isCurrentSessionUserExists = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   if (req.session.userId) {
     const user = await UserCollection.findOneByUserId(req.session.userId);
 
     if (!user) {
       req.session.userId = undefined;
       res.status(500).json({
-        error: 'User session was not recognized.'
+        error: {
+          userNotFound: "User session was not recognized.",
+        },
       });
       return;
     }
@@ -29,7 +36,9 @@ const isValidUsername = (req: Request, res: Response, next: NextFunction) => {
   const usernameRegex = /^\w+$/i;
   if (!usernameRegex.test(req.body.username)) {
     res.status(400).json({
-      error: 'Username must be a nonempty alphanumeric string.'
+      error: {
+        username: "Username must be a nonempty alphanumeric string.",
+      },
     });
     return;
   }
@@ -44,7 +53,9 @@ const isValidPassword = (req: Request, res: Response, next: NextFunction) => {
   const passwordRegex = /^\S+$/;
   if (!passwordRegex.test(req.body.password)) {
     res.status(400).json({
-      error: 'Password must be a nonempty string.'
+      error: {
+        password: "Password must be a nonempty string.",
+      },
     });
     return;
   }
@@ -55,43 +66,59 @@ const isValidPassword = (req: Request, res: Response, next: NextFunction) => {
 /**
  * Checks if a user with username and password in req.body exists
  */
-const isAccountExists = async (req: Request, res: Response, next: NextFunction) => {
-  const {username, password} = req.body as {username: string; password: string};
+const isAccountExists = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { username, password } = req.body as {
+    username: string;
+    password: string;
+  };
 
   if (!username || !password) {
-    res.status(400).json({error: `Missing ${username ? 'password' : 'username'} credentials for sign in.`});
+    res.status(400).json({
+      error: `Missing ${
+        username ? "password" : "username"
+      } credentials for sign in.`,
+    });
     return;
   }
 
   const user = await UserCollection.findOneByUsernameAndPassword(
-    username, password
+    username,
+    password
   );
 
   if (user) {
     next();
   } else {
-    res.status(401).json({error: 'Invalid user login credentials provided.'});
+    res.status(401).json({ error: "Invalid user login credentials provided." });
   }
 };
 
 /**
  * Checks if a username in req.body is already in use
  */
-const isUsernameNotAlreadyInUse = async (req: Request, res: Response, next: NextFunction) => {
-  if (req.body.username !== undefined) { // If username is not being changed, skip this check
-    const user = await UserCollection.findOneByUsername(req.body.username);
+const isUsernameNotAlreadyInUse = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const user = await UserCollection.findOneByUsername(req.body.username);
 
-    // If the current session user wants to change their username to one which matches
-    // the current one irrespective of the case, we should allow them to do so
-    if (user && (user?._id.toString() !== req.session.userId)) {
-      res.status(409).json({
-        error: 'An account with this username already exists.'
-      });
-      return;
-    }
+  // If the current session user wants to change their username to one which matches
+  // the current one irrespective of the case, we should allow them to do so
+  if (!user || user?._id.toString() === req.session.userId) {
+    next();
+    return;
   }
 
-  next();
+  res.status(409).json({
+    error: {
+      username: "An account with this username already exists.",
+    },
+  });
 };
 
 /**
@@ -100,7 +127,9 @@ const isUsernameNotAlreadyInUse = async (req: Request, res: Response, next: Next
 const isUserLoggedIn = (req: Request, res: Response, next: NextFunction) => {
   if (!req.session.userId) {
     res.status(403).json({
-      error: 'You must be logged in to complete this action.'
+      error: {
+        auth: "You must be logged in to complete this action.",
+      },
     });
     return;
   }
@@ -112,9 +141,10 @@ const isUserLoggedIn = (req: Request, res: Response, next: NextFunction) => {
  * Checks if the user is signed out, that is, userId is undefined in session
  */
 const isUserLoggedOut = (req: Request, res: Response, next: NextFunction) => {
+  console.log(req.session.userId);
   if (req.session.userId) {
     res.status(403).json({
-      error: 'You are already signed in.'
+      error: "You are already signed in.",
     });
     return;
   }
@@ -125,18 +155,56 @@ const isUserLoggedOut = (req: Request, res: Response, next: NextFunction) => {
 /**
  * Checks if a user with userId as author id in req.query exists
  */
-const isAuthorExists = async (req: Request, res: Response, next: NextFunction) => {
+const isAuthorExists = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   if (!req.query.author) {
     res.status(400).json({
-      error: 'Provided author username must be nonempty.'
+      error: "Provided author username must be nonempty.",
     });
     return;
   }
 
-  const user = await UserCollection.findOneByUsername(req.query.author as string);
+  const user = await UserCollection.findOneByUsername(
+    req.query.author as string
+  );
   if (!user) {
     res.status(404).json({
-      error: `A user with username ${req.query.author as string} does not exist.`
+      error: `A user with username ${
+        req.query.author as string
+      } does not exist.`,
+    });
+    return;
+  }
+
+  next();
+};
+
+/**
+ * Checks if a user with userId as author id in req.query exists
+ */
+const isSubscribingToExists = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (!req.query.subscribingTo) {
+    res.status(400).json({
+      error: "Provided author username must be nonempty.",
+    });
+    return;
+  }
+
+  const user = await UserCollection.findOneByUsername(
+    req.query.subscribingTo as string
+  );
+  if (!user) {
+    res.status(404).json({
+      error: `A user with username ${
+        req.query.subscribingTo as string
+      } does not exist.`,
     });
     return;
   }
@@ -152,5 +220,6 @@ export {
   isAccountExists,
   isAuthorExists,
   isValidUsername,
-  isValidPassword
+  isValidPassword,
+  isSubscribingToExists,
 };
