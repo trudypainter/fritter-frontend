@@ -27,6 +27,17 @@ export default {
 
     // Clear alerts on page refresh
     this.$store.state.alerts = {};
+
+    // get all connections
+    fetch(`/api/connections`, {
+      credentials: "same-origin", // Sends express-session credentials with request
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        console.log("CONNECTIONS");
+        console.log(res);
+        this.$store.commit("updateConnections", res);
+      });
   },
 };
 </script>
@@ -44,6 +55,12 @@ body {
   margin: 0;
   font-size: 1.2em;
   font-family: Arial, Helvetica, sans-serif;
+}
+
+header {
+  position: fixed;
+  width: 100vw;
+  top: 0px;
 }
 
 main {

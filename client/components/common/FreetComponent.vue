@@ -5,7 +5,7 @@
   <article class="freet">
     <div class="freet-container">
       <div class="content">
-        <div class="header freet-header">
+        <div class="header">
           <div>
             @{{ freet.author }} said <i v-if="freet.edited">(edited)</i>
           </div>
@@ -63,7 +63,7 @@
 import ConnectionsComponent from "@/components/Freet/ConnectionsComponent.vue";
 
 export default {
-  name: "FreetComponent",
+  name: "CreateNewFreetForm",
   components: { ConnectionsComponent },
   props: {
     // Data from the stored freet
@@ -218,9 +218,6 @@ export default {
   display: flex;
   justify-content: space-between;
   line-height: 20px;
-}
-.freet-header {
-  background-color: white;
 }
 .button {
   margin-left: 13px;

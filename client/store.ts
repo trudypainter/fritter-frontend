@@ -12,6 +12,7 @@ const store = new Vuex.Store({
     filter: null, // Username to filter shown freets by (null = show all)
     freets: [], // All freets created in the app
     userChannels: [], // All channels for given user
+    connections: [], // Connections for the feed
     username: null, // Username of the logged in user
     alerts: {}, // global success/error messages encountered during submissions to non-visible forms
   },
@@ -48,10 +49,17 @@ const store = new Vuex.Store({
     },
     updateChannels(state, channels) {
       /**
-       * Update the stored freets to the provided freets.
-       * @param userChannels - Freets to store
+       * Update the stored channels to the provided channels.
+       * @param userChannels - channels to store
        */
       state.userChannels = channels;
+    },
+    updateConnections(state, connections) {
+      /**
+       * Update the stored connections to the provided connections.
+       * @param userChannels - connections to store
+       */
+      state.connections = connections;
     },
     async refreshFreets(state) {
       /**

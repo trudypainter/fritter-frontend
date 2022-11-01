@@ -27,19 +27,18 @@
 
 <style scoped>
 nav {
-  padding: 32px 48px;
+  padding: 32px 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: relative;
 }
 
 a {
-  font-size: 28px;
+  font-size: 32px;
   text-decoration: none;
   color: black;
   font-weight: 900;
-  letter-spacing: -0.8px;
+  /* letter-spacing: -0.8px; */
 }
 
 .alerts {

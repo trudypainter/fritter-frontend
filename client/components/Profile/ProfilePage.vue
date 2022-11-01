@@ -23,6 +23,10 @@
 </template>
 
 <style scoped>
+main {
+  margin-top: 150px;
+}
+
 .profile-bar {
   width: 80vw;
   max-width: 600px;

@@ -266,6 +266,10 @@ export default {
   background-color: lightgray;
   color: black;
 }
+.cancel:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
 
 .addtitle {
   background-color: lightgray;
@@ -278,7 +282,7 @@ export default {
 
 .connections-list {
   /* background-color: red; */
-  height: 180px;
+  height: 280px;
   overflow: scroll;
 }
 
@@ -297,10 +301,7 @@ input:focus {
   outline: none;
   /* border: none; */
 }
-.cancel:hover {
-  cursor: pointer;
-  text-decoration: underline;
-}
+
 .pick-channel {
   position: absolute;
   bottom: 0px;

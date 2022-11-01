@@ -21,7 +21,7 @@
       <header>
         <div class="left">
           <h2>
-            Viewing all activity
+            Viewing all connections
             <span v-if="$store.state.filter">
               by @{{ $store.state.filter }}
             </span>

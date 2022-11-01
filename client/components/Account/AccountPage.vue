@@ -4,18 +4,18 @@
 <template>
   <main>
     <section>
-      <header>
+      <div>
         <h2>Account settings for @{{ $store.state.username }}</h2>
-      </header>
+      </div>
       <div class="settings-box">
         <div class="form"><ChangeUsernameForm /></div>
         <div class="form"><ChangePasswordForm /></div>
       </div>
     </section>
     <section>
-      <header>
+      <div>
         <h2>Account management</h2>
-      </header>
+      </div>
       <div class="settings-box">
         <div class="form"><LogoutForm /></div>
         <div class="form"><DeleteAccountForm /></div>
@@ -25,6 +25,10 @@
 </template>
 
 <style scoped>
+main {
+  margin-top: 150px;
+}
+
 .settings-box {
   display: flex;
   width: 100%;

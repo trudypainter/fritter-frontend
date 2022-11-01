@@ -4,29 +4,41 @@
 <template>
   <main>
     <section>
-      <header>
+      <div class="headers">
         <h2>New to Fritter?</h2>
-      </header>
+      </div>
       <RegisterForm />
     </section>
     <section>
-      <header>
+      <div class="headers">
         <h2>Have an account?</h2>
-      </header>
+      </div>
       <LoginForm />
     </section>
   </main>
 </template>
 
+<style scoped>
+main {
+  margin-top: 150px;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+section {
+  width: 400px;
+}
+</style>
+
 <script>
-import RegisterForm from '@/components/Login/RegisterForm.vue';
-import LoginForm from '@/components/Login/LoginForm.vue';
+import RegisterForm from "@/components/Login/RegisterForm.vue";
+import LoginForm from "@/components/Login/LoginForm.vue";
 
 export default {
-  name: 'LoginPage',
+  name: "LoginPage",
   components: {
     RegisterForm,
-    LoginForm
-  }
+    LoginForm,
+  },
 };
 </script>

@@ -2,51 +2,56 @@
 
 <template>
   <main>
-    <section v-if="$store.state.username">
-      <CreateFreetForm />
+    <section class="new-freet" v-if="$store.state.username">
+      <!-- <CreateFreetForm /> -->
+      New
     </section>
-    <section v-else>
-      <header>
+    <section class="welcome" v-else>
+      <div>
         <h2>Welcome to Fritter!</h2>
-      </header>
+      </div>
       <article>
         <h3>
-          <router-link to="/login"> Sign in </router-link>
+          <router-link to="/login"> Sign in</router-link>
           to create, edit, and delete freets.
         </h3>
       </article>
     </section>
 
     <section>
-      <header>
-        <div class="left">
-          <h2>
-            Viewing all activity
-            <span v-if="$store.state.filter">
-              by @{{ $store.state.filter }}
-            </span>
-          </h2>
-        </div>
-        <div class="right">
-          <GetFreetsForm
-            ref="getFreetsForm"
-            value="author"
-            placeholder="🔍 Filter by author (optional)"
-            button="🔄 Get freets"
-          />
-        </div>
-      </header>
+      <div class="menu">
+        <p @click="freetsSelected()" :class="{ selected: freetSelected }">
+          Freets
+        </p>
+        <p @click="connectionsSelected()" :class="{ selected: !freetSelected }">
+          Connections
+        </p>
+      </div>
 
-      <section v-if="$store.state.freets.length">
-        <FreetComponent
-          v-for="freet in $store.state.freets"
-          :key="freet.id"
-          :freet="freet"
-        />
-      </section>
-      <article v-else>
-        <h3>No freets found.</h3>
-      </article>
+      <div v-if="freetSelected">
+        <section v-if="$store.state.freets.length">
+          <FreetComponent
+            v-for="freet in $store.state.freets"
+            :key="freet.id"
+            :freet="freet"
+          />
+        </section>
+        <article class="no-freets" v-else>
+          <h3>No freets found.</h3>
+        </article>
+      </div>
+      <div v-else>
+        <section v-if="$store.state.connections.length">
+          <ContainerComponent
+            v-for="connection in $store.state.connections"
+            :key="connection.id"
+            :connection="connection"
+          />
+        </section>
+        <article class="no-freets" v-else>
+          <h3>No freets found.</h3>
+        </article>
+      </div>
     </section>
   </main>
 </template>
@@ -55,13 +60,25 @@
 import FreetComponent from "@/components/Freet/FreetComponent.vue";
 import CreateFreetForm from "@/components/Freet/CreateFreetForm.vue";
 import GetFreetsForm from "@/components/Freet/GetFreetsForm.vue";
+import ContainerComponent from "@/components/Connection/ContainerComponent.vue";
 
 export default {
   name: "FreetPage",
-  components: { FreetComponent, GetFreetsForm, CreateFreetForm },
+  data() {
+    return {
+      freetSelected: true,
+    };
+  },
+  components: {
+    FreetComponent,
+    GetFreetsForm,
+    CreateFreetForm,
+    ContainerComponent,
+  },
   mounted() {
     this.$refs.getFreetsForm.submit();
 
+    // get all of a users channels
     if (this.$store.state.username) {
       fetch(`/api/channels?author=${this.$store.state.username}`, {
         credentials: "same-origin", // Sends express-session credentials with request
@@ -72,6 +89,16 @@ export default {
           this.$store.commit("updateChannels", res);
         });
     }
+  },
+  methods: {
+    connectionsSelected() {
+      this.freetSelected = false;
+      console.log(this.$store.state.connections);
+    },
+    freetsSelected() {
+      this.freetSelected = true;
+      console.log(this.$store.state.freets);
+    },
   },
 };
 </script>
@@ -93,9 +120,70 @@ button {
   margin-right: 10px;
 }
 
+.new-freet {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  border: 1px solid black;
+  border-radius: 400px;
+  height: 140px;
+  width: 140px;
+  line-height: 140px;
+  text-align: center;
+  font-size: 32px;
+  background-color: black;
+  color: white;
+}
+
+.new-freet:hover {
+  cursor: pointer;
+  background-color: blue;
+}
+
+.menu {
+  padding: 14px;
+  margin: auto;
+  margin-top: 34px;
+  font-size: 20px;
+  position: fixed;
+  top: 30px;
+  left: 26px;
+}
+p {
+  padding: 2px 2px;
+  width: 140px;
+  text-align: left;
+  margin: 1px;
+  border: 1px solid white;
+}
+p:hover {
+  border: 1px dotted black;
+  cursor: pointer;
+}
+.selected {
+  border: 1px solid black;
+}
+.selected:hover {
+  border: 1px solid black;
+}
+
+h2 {
+  margin: 0px 20px;
+}
+
 section .scrollbox {
   flex: 1 0 50vh;
   padding: 3%;
   overflow-y: scroll;
+}
+
+.welcome {
+  margin: auto;
+  text-align: center;
+  margin-top: 150px;
+}
+
+.no-freets {
+  text-align: center;
 }
 </style>
