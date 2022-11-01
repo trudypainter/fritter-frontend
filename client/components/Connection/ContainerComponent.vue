@@ -1,73 +1,22 @@
-<!-- Reusable component representing a single freet and its actions -->
-<!-- We've tagged some elements with classes; consider writing CSS using those classes to style them... -->
+<!-- Reusable component representing a container of a conneciton and its freet, connections, and its actions -->
 
 <template>
-  <article class="freet">
-    <div class="freet-container">
-      <div class="content">
-        <div class="header">
-          <div>
-            @{{ freet.author }} said <i v-if="freet.edited">(edited)</i>
-          </div>
-
-          <div v-if="$store.state.username === freet.author" class="actions">
-            <div class="button" v-if="editing" @click="submitEdit">
-              ✅ Update
-            </div>
-            <div class="button" v-if="editing" @click="stopEditing">
-              🚫 Back
-            </div>
-            <div class="button" v-if="!editing" @click="startEditing">
-              ✏️ Edit
-            </div>
-            <div class="button" @click="deleteFreet">🗑️ Delete</div>
-          </div>
-        </div>
-        <div>
-          <textarea
-            v-if="editing"
-            :value="draft"
-            @input="draft = $event.target.value"
-          >
-          </textarea>
-          <div class="freet-content" v-else>
-            {{ freet.content }}
-            <div class="date">on {{ freet.dateModified }}</div>
-          </div>
-        </div>
-      </div>
-      <div class="connections">
-        <ConnectionsComponent
-          :freet="this.freet"
-          :connections="this.connections"
-        />
-      </div>
-    </div>
-
+  <article class="connection">
     <div class="info">
       <div>from @{{ freet.author }} at {{ freet.dateModified }}</div>
     </div>
-    <section class="alerts">
-      <article
-        v-for="(status, alert, index) in alerts"
-        :key="index"
-        :class="status"
-      >
-        <p>{{ alert }}</p>
-      </article>
-    </section>
   </article>
 </template>
 
 <script>
-import ConnectionsComponent from "@/components/Freet/ConnectionsComponent.vue";
+import FreetComponent from "@/components/Freet/FreetComponent.vue";
 
 export default {
-  name: "FreetComponent",
-  components: { ConnectionsComponent },
+  name: "ContainerComponent",
+  components: { FreetComponent },
   props: {
     // Data from the stored freet
-    freet: {
+    connection: {
       type: Object,
       required: true,
     },
@@ -217,25 +166,6 @@ export default {
   background-color: lightgrey;
   display: flex;
   justify-content: space-between;
-  line-height: 20px;
-}
-.button {
-  margin-left: 13px;
-}
-.button:hover {
-  cursor: pointer;
-  text-decoration: underline;
-}
-textarea {
-  width: 100%;
-  height: 238px;
-  resize: none;
-}
-textarea:focus {
-  outline: none;
-}
-.actions {
-  display: flex;
 }
 .freet-content {
   padding: 20px;
