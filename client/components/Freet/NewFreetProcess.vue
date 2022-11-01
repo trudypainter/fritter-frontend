@@ -2,45 +2,35 @@
 <!-- We've tagged some elements with classes; consider writing CSS using those classes to style them... -->
 
 <template>
-  <article class="freet">
-    <div class="freet-container">
+  <article>
+    <section
+      class="new-freet"
+      :class="{ 'cancel-button': editing }"
+      v-if="$store.state.username"
+    >
+      <span v-if="!editing" @click="newSelected()">New</span>
+      <span v-else @click="cancelSelected()"
+        >Close
+        <div class="background"></div>
+      </span>
+    </section>
+
+    <div v-if="editing" class="freet-container">
       <div class="content">
         <div class="header freet-header">
-          <div>
-            @{{ freet.author }} said <i v-if="freet.edited">(edited)</i>
-          </div>
-
-          <div v-if="$store.state.username === freet.author" class="actions">
-            <div class="button" v-if="editing" @click="submitEdit">
-              ✅ Update
-            </div>
-            <div class="button" v-if="editing" @click="stopEditing">
-              🚫 Back
-            </div>
-            <div class="button" v-if="!editing" @click="startEditing">
-              ✏️ Edit
-            </div>
-            <div class="button" @click="deleteFreet">🗑️ Delete</div>
-          </div>
+          <div>Write Freet below</div>
         </div>
         <div>
           <textarea
-            v-if="editing"
             :value="draft"
             @input="draft = $event.target.value"
+            placeholder="and so I was thinking..."
           >
           </textarea>
-          <div class="freet-content" v-else>
-            {{ freet.content }}
-            <div class="date">on {{ freet.dateModified }}</div>
-          </div>
         </div>
       </div>
       <div class="connections">
-        <ConnectionsComponent
-          :freet="this.freet"
-          :connections="this.connections"
-        />
+        <ConnectionForNewFreet :draft="this.draft" />
       </div>
     </div>
 
@@ -60,105 +50,32 @@
 </template>
 
 <script>
-import ConnectionsComponent from "@/components/Freet/ConnectionsComponent.vue";
+import ConnectionForNewFreet from "@/components/Freet/ConnectionForNewFreet.vue";
 
 export default {
-  name: "FreetComponent",
-  components: { ConnectionsComponent },
-  props: {
-    // Data from the stored freet
-    freet: {
-      type: Object,
-      required: true,
-    },
-  },
+  name: "NewFreetProcess",
+  components: { ConnectionForNewFreet },
+
   data() {
     return {
       editing: false, // Whether or not this freet is in edit mode
-      draft: this.freet.content, // Potentially-new content for this freet
       connections: [], // connections for a freet - init as empty list
+      draft: "",
       connectionsLoaded: false,
       alerts: {}, // Displays success/error messages encountered during freet modification
     };
   },
-  async mounted() {
-    // get connections for the freet once created
-    if (!this.connectionsLoaded) {
-      const options = {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      };
-      const r = await fetch(
-        `/api/connections?freetId=${this.freet._id}`,
-        options
-      );
-      const res = await r.json();
-      this.connectionsLoaded = true;
-      this.connections = res;
-    }
-  },
+
   methods: {
-    startEditing() {
-      /**
-       * Enables edit mode on this freet.
-       */
+    newSelected() {
       this.editing = true; // Keeps track of if a freet is being edited
-      this.draft = this.freet.content; // The content of our current "draft" while being edited
     },
-    stopEditing() {
-      /**
-       * Disables edit mode on this freet.
-       */
+    cancelSelected() {
       this.editing = false;
-      this.draft = this.freet.content;
+      this.draft = "";
     },
-    async deleteFreet() {
-      /**
-       * Deletes this freet.
-       */
 
-      // delete connection if no matching freet
-      for (let i = 0; i < this.connections; i++) {
-        let options = {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-        };
-        console.log("trying to delete connection...");
-        let r = await fetch(
-          `/api/connections/${this.connections[i]._id}`,
-          options
-        );
-        if (!r.ok) {
-          let res = await r.json();
-          throw new Error(res.error);
-        }
-        let res = await r.json();
-        console.log("DELETED CONNECTION", res);
-      }
-
-      // get all connections
-      fetch(`/api/connections`, {
-        credentials: "same-origin", // Sends express-session credentials with request
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          console.log("CONNECTIONS");
-          console.log(res);
-          this.$store.commit("updateConnections", res);
-        });
-
-      const params = {
-        method: "DELETE",
-        callback: () => {
-          this.$store.commit("alert", {
-            message: "Successfully deleted freet!",
-            status: "success",
-          });
-        },
-      };
-      this.request(params);
-    },
-    submitEdit() {
+    submitFreet() {
       /**
        * Updates freet to have the submitted draft content.
        */
@@ -216,6 +133,29 @@ export default {
 </script>
 
 <style scoped>
+.new-freet {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  border: 1px solid black;
+  border-radius: 400px;
+  height: 140px;
+  width: 140px;
+  line-height: 140px;
+  text-align: center;
+  font-size: 32px;
+  background-color: black;
+  color: white;
+}
+.new-freet:hover {
+  cursor: pointer;
+  background-color: blue;
+}
+.cancel-button:hover {
+  background-color: lightgray;
+  color: black;
+}
+
 .freet {
   position: relative;
   margin: auto;
@@ -233,8 +173,16 @@ export default {
   margin-bottom: 20px;
 }
 .freet-container {
-  width: 100%;
+  position: fixed;
+  bottom: 180px;
+  right: 20px;
+  width: 800px;
   display: flex;
+  z-index: 9999;
+
+  box-shadow: 10px 7px 5px -2px rgba(189, 189, 189, 0.39);
+  -webkit-box-shadow: 10px 7px 5px -2px rgba(189, 189, 189, 0.39);
+  -moz-box-shadow: 10px 7px 5px -2px rgba(189, 189, 189, 0.39);
 }
 .content {
   border: 1px solid black;
@@ -249,6 +197,7 @@ export default {
   display: flex;
   justify-content: space-between;
   line-height: 20px;
+  font-size: 16px;
 }
 .freet-header {
   background-color: white;
@@ -264,9 +213,15 @@ textarea {
   width: 100%;
   height: 338px;
   resize: none;
+  padding: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+  border: 0px solid black;
+  border-bottom: 1px solid black;
 }
 textarea:focus {
   outline: none;
+  border: 0px solid black;
+  border-bottom: 1px solid black;
 }
 .actions {
   display: flex;
@@ -287,5 +242,6 @@ textarea:focus {
   width: 50%;
   height: 400px;
   position: relative;
+  font-size: 16px;
 }
 </style>

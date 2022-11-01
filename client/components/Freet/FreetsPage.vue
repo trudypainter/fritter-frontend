@@ -2,9 +2,8 @@
 
 <template>
   <main>
-    <section class="new-freet" v-if="$store.state.username">
-      <!-- <CreateFreetForm /> -->
-      New
+    <section v-if="$store.state.username">
+      <NewFreetProcess />
     </section>
     <section class="welcome" v-else>
       <div>
@@ -61,6 +60,7 @@ import FreetComponent from "@/components/Freet/FreetComponent.vue";
 import CreateFreetForm from "@/components/Freet/CreateFreetForm.vue";
 import GetFreetsForm from "@/components/Freet/GetFreetsForm.vue";
 import ContainerComponent from "@/components/Connection/ContainerComponent.vue";
+import NewFreetProcess from "@/components/Freet/NewFreetProcess.vue";
 
 export default {
   name: "FreetPage",
@@ -74,6 +74,7 @@ export default {
     GetFreetsForm,
     CreateFreetForm,
     ContainerComponent,
+    NewFreetProcess,
   },
   mounted() {
     this.$refs.getFreetsForm.submit();
@@ -118,26 +119,6 @@ header > * {
 
 button {
   margin-right: 10px;
-}
-
-.new-freet {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  border: 1px solid black;
-  border-radius: 400px;
-  height: 140px;
-  width: 140px;
-  line-height: 140px;
-  text-align: center;
-  font-size: 32px;
-  background-color: black;
-  color: white;
-}
-
-.new-freet:hover {
-  cursor: pointer;
-  background-color: blue;
 }
 
 .menu {

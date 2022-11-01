@@ -62,7 +62,7 @@ class ConnectionCollection {
   static async findAll(): Promise<Array<HydratedDocument<Connection>>> {
     // Retrieves Connections and sorts them from most to least recent
     return ConnectionModel.find({})
-      .sort({ dateModified: -1 })
+      .sort({ dateCreated: -1 })
       .populate("authorId")
       .populate("channelId")
       .populate("freetId");

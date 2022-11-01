@@ -23,6 +23,17 @@ export default {
         console.log("USER SESSION", res);
         const user = res.user;
         this.$store.commit("setUsername", user ? user.username : null);
+
+        // update user channels
+        fetch("/api/channels?author=" + user.username, {
+          credentials: "same-origin", // Sends express-session credentials with request
+        })
+          .then((res) => res.json())
+          .then((res) => {
+            console.log("USER CHANNELS", res);
+
+            this.$store.commit("updateChannels", res);
+          });
       });
 
     // Clear alerts on page refresh
@@ -37,6 +48,17 @@ export default {
         console.log("CONNECTIONS");
         console.log(res);
         this.$store.commit("updateConnections", res);
+      });
+
+    // get all freets
+    fetch(`/api/freets`, {
+      credentials: "same-origin", // Sends express-session credentials with request
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        console.log("FREETS");
+        console.log(res);
+        this.$store.commit("updateFreets", res);
       });
   },
 };

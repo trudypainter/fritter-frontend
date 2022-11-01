@@ -2,22 +2,11 @@
 <!-- We've tagged some elements with classes; consider writing CSS using those classes to style them... -->
 <template>
   <div class="connections-container">
-    <!-- STATE 0 -->
-    <div v-if="this.state == 0">
-      <div class="connections-header">
-        {{ this.connections.length }} Connections
-      </div>
-      <div class="connections-list">
-        <div v-for="connection in this.connections" class="channel-row">
-          <div>{{ connection.channel.title }}</div>
-          <div>@{{ connection.author }}</div>
-        </div>
-      </div>
-      <div @click="handleConnect" class="new-connections-button">Connect →</div>
-    </div>
     <!-- STATE 1 -->
     <div v-if="this.state == 1">
-      <div @click="state = 0" class="connections-header cancel">Cancel</div>
+      <div @click="state = 0" class="connections-header">
+        Channel to Connect To
+      </div>
       <div class="connections-list">
         <div @click="newChannelSelected()" class="channel-row to-pick">
           <i>+ New Channel</i>
@@ -35,7 +24,7 @@
     </div>
     <!-- STATE 2 -->
     <div v-if="this.state == 2">
-      <div @click="state = 0" class="connections-header cancel">Cancel</div>
+      <div @click="state = 1" class="connections-header cancel">Cancel</div>
       <div>
         <form>
           <input v-model="title" placeholder="title" />
@@ -47,15 +36,19 @@
         class="new-connections-button"
         :class="{ create: title !== '', addtitle: title === '' }"
       >
-        <div v-if="title !== ''" @click="createChannelAndConnection()">
+        <div
+          v-if="title !== '' && this.draft !== ''"
+          @click="createChannelAndConnection()"
+        >
           Create Channel and Connection +
         </div>
+        <div v-else-if="this.draft == ''">Enter Freet Content</div>
         <div v-else>Enter Channel Title</div>
       </div>
     </div>
     <!-- STATE 3 -->
     <div v-if="this.state == 3">
-      <div @click="state = 0" class="connections-header cancel">Cancel</div>
+      <div class="connections-header">Channel to Connect To</div>
 
       <div class="connections-list">
         <div @click="newChannelSelected()" class="channel-row to-pick">
@@ -77,7 +70,11 @@
           </div>
         </div>
       </div>
+      <div class="new-connections-button addtitle" v-if="this.draft === ''">
+        Enter Freet Content
+      </div>
       <div
+        v-else
         @click="submitConnectionCreation()"
         class="new-connections-button create"
       >
@@ -99,17 +96,18 @@
 import NewChannelAndConnectionForm from "./NewChannelAndConnectionForm.vue";
 
 export default {
-  name: "ConnectionsComponent",
+  name: "ConnectionForNewFreet",
   components: { NewChannelAndConnectionForm },
   props: {
-    // Data from the stored freet
-    freet: { type: Object, required: true },
-    connections: { required: true },
+    draft: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
       alerts: {},
-      state: 0,
+      state: 1,
       channelSelectedId: undefined,
       title: "",
       description: "",
@@ -131,27 +129,47 @@ export default {
     },
     async createChannelAndConnection() {
       // create channel -> then immediately create connection to new channel
-      const options = {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: this.title,
-          description: this.description,
-        }),
-      };
+
       try {
+        // create new freet
+        const freetOptions = {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            content: this.draft,
+          }),
+        };
+        const rFreet = await fetch(`/api/freets/`, freetOptions);
+        if (!rFreet.ok) {
+          const resFreet = await rFreet.json();
+          throw new Error(resFreet.error);
+        }
+        const resFreet = await rFreet.json();
+        this.$set(this.alerts, "Freet Created", "success");
+        setTimeout(() => this.$delete(this.alerts, "Freet Created"), 3000);
+
+        console.log("⭐️ freet from freet creation", resFreet);
+        const createdFreetId = resFreet.freet._id;
+
         // post new channel
+        const options = {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: this.title,
+            description: this.description,
+          }),
+        };
         const r = await fetch(`/api/channels/`, options);
         if (!r.ok) {
           const res = await r.json();
           throw new Error(res.error);
         }
         const res = await r.json();
-
         this.$set(this.alerts, "Channel Created", "success");
         setTimeout(() => this.$delete(this.alerts, "Channel Created"), 3000);
 
-        console.log("res from channel creation", res.Channel);
+        console.log("⭐️ res from channel creation", res.Channel);
         const createdChannelId = res.Channel._id;
 
         // create connection
@@ -160,7 +178,7 @@ export default {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             channelId: createdChannelId,
-            freetId: this.freet._id,
+            freetId: createdFreetId,
           }),
         };
         console.log("options for connection", conectionOptions);
@@ -178,18 +196,14 @@ export default {
           3000
         );
 
-        // refresh the connections
-        const req = await fetch(`/api/connections?freetId=${this.freet._id}`, {
-          method: "GET",
-        });
-        const resp = await req.json();
-        this.connections = resp;
-
         // reset state
-        this.state = 0;
+        this.state = 1;
+
+        // close window
+        this.$emit("editing", false);
       } catch (e) {
         this.$set(this.alerts, e, "error");
-        setTimeout(() => this.$delete(this.alerts, e), 3000);
+        setTimeout(() => this.$delete(this.alerts, e), 5000);
       }
     },
     existingChannelSelected(channelId) {
@@ -199,16 +213,38 @@ export default {
     async submitConnectionCreation(channelId) {
       console.log(this.channelSelectedId);
 
-      const options = {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          freetId: this.freet._id,
-          channelId: this.channelSelectedId,
-        }),
-      };
       try {
+        // create new freet
+        const freetOptions = {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            content: this.draft,
+          }),
+        };
+        const rFreet = await fetch(`/api/freets/`, freetOptions);
+        if (!rFreet.ok) {
+          const resFreet = await rFreet.json();
+          throw new Error(resFreet.error);
+        }
+        const resFreet = await rFreet.json();
+        this.$set(this.alerts, "Freet Created", "success");
+        setTimeout(() => this.$delete(this.alerts, "Freet Created"), 3000);
+
+        console.log("⭐️ freet from freet creation", resFreet);
+        const createdFreetId = resFreet.freet._id;
+
+        console.log(createdFreetId);
+        console.log(this.channelSelectedId);
         // post new connection
+        const options = {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            freetId: createdFreetId,
+            channelId: this.channelSelectedId,
+          }),
+        };
         const r = await fetch(`/api/connections/`, options);
         if (!r.ok) {
           const res = await r.json();
@@ -216,20 +252,11 @@ export default {
         }
         const res = await r.json();
 
-        // refresh the connections
-        const req = await fetch(`/api/connections?freetId=${this.freet._id}`, {
-          method: "GET",
-        });
-        const resp = await req.json();
-        this.connections = resp;
+        // reset state
+        this.state = 1;
 
-        this.$set(this.alerts, "Connected to Channel", "success");
-        setTimeout(
-          () => this.$delete(this.alerts, "Connected to Channel"),
-          3000
-        );
-
-        this.state = 0;
+        // close window
+        this.$emit("editing", false);
       } catch (e) {
         this.$set(this.alerts, e, "error");
         setTimeout(() => this.$delete(this.alerts, e), 3000);
@@ -291,6 +318,8 @@ form {
   display: block;
   width: 100%;
   padding: 10px;
+  background-color: white;
+  height: 300px;
 }
 input {
   padding: 10px;

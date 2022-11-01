@@ -31,11 +31,15 @@ export default {
       freet: {}, // freet for the connection
     };
   },
-  created() {
-    // get connections for the freet once created
-    console.log("⭐️", this.connection);
-    this.freet = this.connection.freet;
-    this.freet.author = this.connection.author;
+  async created() {
+    // delete connection if null freet
+    if (this.connection.freet === null) {
+      console.log("NULL FREET*****");
+    } else {
+      // proper formatting for connection
+      this.freet = this.connection.freet;
+      this.freet.author = this.connection.author;
+    }
   },
   methods: {},
 };

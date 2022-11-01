@@ -92,13 +92,6 @@ const isValidFreetContent = (
     return;
   }
 
-  if (content.length > 140) {
-    res.status(413).json({
-      error: "Freet content must be no more than 140 characters.",
-    });
-    return;
-  }
-
   next();
 };
 
