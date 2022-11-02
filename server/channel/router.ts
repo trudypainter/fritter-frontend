@@ -30,6 +30,20 @@ const router = express.Router();
 router.get(
   "/",
   async (req: Request, res: Response, next: NextFunction) => {
+    console.log(req.query);
+    // Check if authorId query parameter was supplied
+    if (req.query.channelId !== undefined) {
+      console.log("not undefined");
+      console.log("⭐️GETTTT", req.query, req.query.channelId.toString());
+
+      const channel = await ChannelCollection.findOne(
+        req.query.channelId.toString()
+      );
+      const response = util.constructChannelResponse(channel);
+      res.status(200).json(response);
+      return;
+    }
+
     // Check if authorId query parameter was supplied
     if (req.query.author !== undefined) {
       next();
@@ -100,12 +114,12 @@ router.delete(
   ],
   async (req: Request, res: Response) => {
     console.log("req params", req.params.channelId);
-    const chan = await ChannelCollection.deleteOne(req.params.channelId);
-    console.log("deleted channel obj", chan);
-
     const connections = await ConnectionCollection.deleteForChannel(
       req.params.channelId.toString()
     );
+    const chan = await ChannelCollection.deleteOne(req.params.channelId);
+    console.log("deleted channel obj", chan);
+
     console.log("deleted conenctions", connections);
 
     await FollowCollection.deleteForChannel(req.params.channelId.toString());

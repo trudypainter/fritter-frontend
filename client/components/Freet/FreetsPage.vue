@@ -19,12 +19,28 @@
 
     <section>
       <div class="menu">
-        <p @click="freetsSelected()" :class="{ selected: freetSelected }">
+        <p
+          @click="freetsSelected()"
+          @mouseover="freetsHovered = true"
+          @mouseleave="freetsHovered = false"
+          :class="{ selected: freetSelected }"
+        >
           Freets
         </p>
-        <p @click="connectionsSelected()" :class="{ selected: !freetSelected }">
+        <p
+          @click="connectionsSelected()"
+          @mouseover="connectionsHovered = true"
+          @mouseleave="connectionsHovered = false"
+          :class="{ selected: !freetSelected }"
+        >
           Connections
         </p>
+        <div v-if="connectionsHovered">
+          Connections in your feed are from Channels you Follow.
+        </div>
+        <div v-if="freetsHovered">
+          Freets in your feed are from Users you Subscribe To.
+        </div>
       </div>
 
       <div v-if="freetSelected">
@@ -67,6 +83,8 @@ export default {
   data() {
     return {
       freetSelected: true,
+      connectionsHovered: false,
+      freetsHovered: false,
     };
   },
   components: {
@@ -162,6 +180,16 @@ section .scrollbox {
   margin: auto;
   text-align: center;
   margin-top: 150px;
+}
+
+.menu div {
+  background-color: white;
+  color: gray;
+  width: 180px;
+  padding: 0px;
+  font-style: italic;
+  font-size: 14px;
+  margin-top: 10px;
 }
 
 .no-freets {

@@ -112,7 +112,6 @@ class ConnectionCollection {
     freetId: string
   ): Promise<Array<HydratedDocument<Connection>>> {
     const freet = await FreetCollection.findOne(freetId);
-    console.log("at conneciton for freet", freet);
     return ConnectionModel.find({
       freetId: freet._id,
     })
@@ -153,6 +152,19 @@ class ConnectionCollection {
     console.log("deleting connections for channel", channelId);
     let connectionDeletes = await ConnectionModel.deleteMany({
       channelId: { _id: channelId },
+    });
+    console.log("connecitons delted", connectionDeletes);
+    return connectionDeletes !== null;
+  }
+  /**
+   * Delete all the Connections in a given freet
+   *
+   * @param {string} freetId - The id of channel having the Connections
+   */
+  static async deleteForFreet(freetId: string): Promise<boolean> {
+    console.log("deleting connections for freet", freetId);
+    let connectionDeletes = await ConnectionModel.deleteMany({
+      freetId: { _id: freetId },
     });
     console.log("connecitons delted", connectionDeletes);
     return connectionDeletes !== null;

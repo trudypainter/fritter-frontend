@@ -105,10 +105,12 @@ router.post(
     FollowValidator.isNotDuplicateFollow,
   ],
   async (req: Request, res: Response) => {
+    console.log("GOT POST.....");
     const userId = (req.session.userId as string) ?? ""; // Will not be an empty string since its validated in isUserLoggedIn
     const Follow = await FollowCollection.addOne(userId, req.body.channelId);
 
-    res.status(201).json({
+    console.log(Follow);
+    res.status(200).json({
       message: "Your Follow was created successfully.",
       Follow: util.constructFollowResponse(Follow),
     });

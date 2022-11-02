@@ -3,6 +3,8 @@ import moment from "moment";
 import type { Connection, PopulatedConnection } from "../connection/model";
 import type { Channel } from "../channel/model";
 import type { Freet } from "../freet/model";
+import UserCollection from "../user/collection";
+import FreetModel from "./model";
 
 // Update this if you add a property to the Connection type!
 type ConnectionResponse = {
@@ -39,6 +41,7 @@ const constructConnectionResponse = (
   };
   const { username } = ConnectionCopy.authorId;
   delete ConnectionCopy.authorId;
+
   return {
     // ...ConnectionCopy,
     _id: ConnectionCopy._id.toString(),

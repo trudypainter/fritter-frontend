@@ -59,7 +59,6 @@ const isFreetInQueryExists = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("Got to freet validaroe");
   const { freetId } = req.query as { freetId: string };
   const validFormat = Types.ObjectId.isValid(freetId);
   const freet = validFormat ? await FreetCollection.findOne(freetId) : "";

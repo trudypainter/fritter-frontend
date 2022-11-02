@@ -24,16 +24,16 @@ export default {
         const user = res.user;
         this.$store.commit("setUsername", user ? user.username : null);
 
-        // update user channels
-        fetch("/api/channels?author=" + user.username, {
-          credentials: "same-origin", // Sends express-session credentials with request
-        })
-          .then((res) => res.json())
-          .then((res) => {
-            console.log("USER CHANNELS", res);
+        if (user) {
+          // pull user channels
+          this.$store.commit("refreshUserChannels");
 
-            this.$store.commit("updateChannels", res);
-          });
+          // pull user follows
+          this.$store.commit("refreshUserFollows");
+
+          // pull user subscribes
+          this.$store.commit("refreshUserSubscribes");
+        }
       });
 
     // Clear alerts on page refresh
@@ -111,10 +111,10 @@ main {
 }
 
 .alerts .error {
-  background-color: rgb(166, 23, 33);
+  background-color: rgb(230, 9, 24);
 }
 
 .alerts .success {
-  background-color: rgb(45, 135, 87);
+  background-color: rgb(0, 184, 70);
 }
 </style>

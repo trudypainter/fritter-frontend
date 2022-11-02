@@ -2,11 +2,11 @@
 
 <template>
   <article class="connection">
-    <FreetComponent :freet="this.freet" />
+    <FreetComponent v-if="gotAuthor" :freet="this.connection.freet" />
     <div class="info">
       <div>
-        @{{ connection.author }} connected this to
-        <i>{{ connection.channel.title }}</i>
+        @{{ this.connection.author }} connected this to
+        <i>{{ this.connection.channel.title }}</i>
       </div>
       <div class="date">on {{ connection.dateCreated }}</div>
     </div>
@@ -28,18 +28,25 @@ export default {
   },
   data() {
     return {
-      freet: {}, // freet for the connection
+      author: "", // freet for the connection
+      gotAuthor: false,
     };
   },
-  async created() {
-    // delete connection if null freet
-    if (this.connection.freet === null) {
-      console.log("NULL FREET*****");
-    } else {
-      // proper formatting for connection
-      this.freet = this.connection.freet;
-      this.freet.author = this.connection.author;
-    }
+  async mounted() {
+    // get extra info for freet from connection
+    this.freet = this.connection.freet;
+    const options = {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    };
+    const r = await fetch(
+      `/api/freets?freetId=${this.connection.freet._id}`,
+      options
+    );
+    const res = await r.json();
+    this.author = res.author;
+    this.freet.author = res.author;
+    this.gotAuthor = true;
   },
   methods: {},
 };

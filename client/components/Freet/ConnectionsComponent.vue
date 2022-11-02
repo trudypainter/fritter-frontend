@@ -9,8 +9,18 @@
       </div>
       <div class="connections-list">
         <div v-for="connection in this.connections" class="channel-row">
-          <div>{{ connection.channel.title }}</div>
-          <div>@{{ connection.author }}</div>
+          <div>
+            <router-link
+              class="a-channel"
+              :to="`/channel/${connection.channel._id}`"
+              >{{ connection.channel.title }}</router-link
+            >
+          </div>
+          <div>
+            <router-link class="a-user" :to="`/user/${connection.author}`"
+              >@{{ connection.author }}</router-link
+            >
+          </div>
         </div>
       </div>
       <div @click="handleConnect" class="new-connections-button">Connect →</div>
@@ -260,7 +270,9 @@ export default {
 }
 
 .create {
-  background-color: darkgreen;
+  background-color: rgb(0, 184, 70);
+  color: black;
+  border-top: 1px solid black;
 }
 .cancel {
   background-color: lightgray;
@@ -327,5 +339,15 @@ input:focus {
   cursor: pointer;
   outline: 1px dotted black;
   outline-offset: -10px;
+}
+a {
+  color: black;
+  text-decoration: none;
+}
+.a-channel:hover {
+  color: rgb(0, 184, 70);
+}
+.a-user:hover {
+  color: blueviolet;
 }
 </style>

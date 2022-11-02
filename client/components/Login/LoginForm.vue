@@ -23,6 +23,9 @@ export default {
           message: "You are now signed in!",
           status: "success",
         });
+        this.$store.commit("refreshUserFollows");
+        this.$store.commit("refreshUserChannels");
+        this.$store.commit("refreshUserSubscribes");
       },
     };
   },

@@ -11,7 +11,9 @@ const store = new Vuex.Store({
   state: {
     filter: null, // Username to filter shown freets by (null = show all)
     freets: [], // All freets created in the app
-    userChannels: [], // All channels for given user
+    userChannels: [], // All channels for signed in user
+    userFollows: [], // All follows for the signed in user
+    userSubscribesTo: [], // All subscribes to other users from signed in user
     connections: [], // Connections for the feed
     username: null, // Username of the logged in user
     alerts: {}, // global success/error messages encountered during submissions to non-visible forms
@@ -61,6 +63,20 @@ const store = new Vuex.Store({
        */
       state.connections = connections;
     },
+    updateFollows(state, follows) {
+      /**
+       * Update the stored follows for a signed in user.
+       * @param follows
+       */
+      state.userFollows = follows;
+    },
+    updateSubscribes(state, subscribes) {
+      /**
+       * Update the subsrcibingTo for the signed in user
+       * @param subscribes
+       */
+      state.userSubscribesTo = subscribes;
+    },
     async refreshFreets(state) {
       /**
        * Request the server for the currently available freets.
@@ -70,6 +86,31 @@ const store = new Vuex.Store({
         : "/api/freets";
       const res = await fetch(url).then(async (r) => r.json());
       state.freets = res;
+    },
+    async refreshUserChannels(state) {
+      /**
+       *  Request the server for the currently available channels.
+       */
+      const url = `/api/channels?author=${state.username}`;
+      const res = await fetch(url).then(async (r) => r.json());
+      state.userChannels = res;
+    },
+    async refreshUserFollows(state) {
+      /**
+       *  Request the server for the user's follows.
+       */
+      const url = `/api/follows?author=${state.username}`;
+      const res = await fetch(url).then(async (r) => r.json());
+      console.log("updated follows...", res, state.username);
+      state.userFollows = res;
+    },
+    async refreshUserSubscribes(state) {
+      /**
+       *  Request the server for the user's subscribes.
+       */
+      const url = `/api/subscribes?author=${state.username}`;
+      const res = await fetch(url).then(async (r) => r.json());
+      state.userSubscribesTo = res;
     },
   },
   // Store data across page refreshes, only discard on browser close

@@ -4,6 +4,7 @@ import FreetCollection from "./collection";
 import * as userValidator from "../user/middleware";
 import * as freetValidator from "../freet/middleware";
 import * as util from "./util";
+import ConnectionCollection from "../connection/collection";
 
 const router = express.Router();
 
@@ -28,6 +29,14 @@ const router = express.Router();
 router.get(
   "/",
   async (req: Request, res: Response, next: NextFunction) => {
+    if (req.query.freetId !== undefined) {
+      console.log("freeet.....");
+      const freet = await FreetCollection.findOne(req.query.freetId.toString());
+      const response = util.constructFreetResponse(freet);
+      res.status(200).json(response);
+      return;
+    }
+
     // Check if authorId query parameter was supplied
     if (req.query.author !== undefined) {
       next();
@@ -91,6 +100,7 @@ router.delete(
     freetValidator.isValidFreetModifier,
   ],
   async (req: Request, res: Response) => {
+    await ConnectionCollection.deleteForFreet(req.params.freetId);
     await FreetCollection.deleteOne(req.params.freetId);
     res.status(200).json({
       message: "Your freet was deleted successfully.",

@@ -2,56 +2,64 @@
 <!-- We've tagged some elements with classes; consider writing CSS using those classes to style them... -->
 
 <template>
-  <article class="freet">
-    <div class="freet-container">
-      <div class="content">
-        <div class="header freet-header">
-          <div>
-            <span class="link"
-              ><router-link :to="`/user/${freet.author}`"
-                >@{{ freet.author }}</router-link
-              ></span
-            >
-            said <i v-if="freet.edited">(edited)</i>
-          </div>
-
-          <div v-if="$store.state.username === freet.author" class="actions">
-            <div class="button update" v-if="editing" @click="submitEdit">
-              Update
-            </div>
-            <div class="button back" v-if="editing" @click="stopEditing">
-              Back
-            </div>
-            <div class="button edit" v-if="!editing" @click="startEditing">
-              Edit
-            </div>
-            <div class="button delete" @click="deleteFreet">Delete</div>
-          </div>
+  <div class="channel">
+    <div class="header">
+      <div class="title">
+        <div v-if="editing">
+          <input v-model="titleInput" placeholder="title" />
         </div>
-        <div>
-          <textarea
-            v-if="editing"
-            :value="draft"
-            @input="draft = $event.target.value"
-          >
-          </textarea>
-          <div class="freet-content" v-else>
-            {{ freet.content }}
-            <div class="date">on {{ freet.dateModified }}</div>
-          </div>
+        <div v-else>
+          <router-link class="a-channel" :to="`/channel/${channel._id}`">{{
+            channel.title
+          }}</router-link>
         </div>
       </div>
-      <div class="connections">
-        <ConnectionsComponent
-          :freet="this.freet"
-          :connections="this.connections"
-        />
+
+      <div v-if="channelLoaded">
+        <div v-if="$store.state.username === channel.author" class="actions">
+          <div class="button update" v-if="editing" @click="submitEdit">
+            Update
+          </div>
+          <div class="button back" v-if="editing" @click="stopEditing">
+            Back
+          </div>
+          <div class="button edit" v-if="!editing" @click="startEditing">
+            Edit
+          </div>
+          <div class="button delete" @click="deleteFreet">Delete</div>
+        </div>
+        <div v-else>
+          <FollowComponent :channelId="`${this.channel._id}`" />
+        </div>
+      </div>
+      <div v-else>Loading...</div>
+    </div>
+    <div class="description">
+      <div v-if="editing">
+        <input v-model="descriptionInput" placeholder="description" />
+      </div>
+      <div v-else>
+        {{ channel.description }}
+        <br />
+        <i>Number of Connected Freets: {{ connections.length }}</i>
+        <br />by
+        <router-link :to="`/user/${this.channel.author}`"
+          >@{{ channel.author }}</router-link
+        >
+      </div>
+    </div>
+    <div class="freets">
+      <div class="freet-preview" v-for="connection in this.connections">
+        <!-- @{{ connection.freet.author }} said
+        <br />
+        <br /> -->
+        {{ connection.freet.content }}
       </div>
     </div>
 
     <!-- <div class="info">
-      <div>from @{{ freet.author }} at {{ freet.dateModified }}</div>
-    </div> -->
+        <div>from @{{ freet.author }} at {{ freet.dateModified }}</div>
+      </div> -->
     <section class="alerts">
       <article
         v-for="(status, alert, index) in alerts"
@@ -61,18 +69,18 @@
         <p>{{ alert }}</p>
       </article>
     </section>
-  </article>
+  </div>
 </template>
 
 <script>
-import ConnectionsComponent from "@/components/Freet/ConnectionsComponent.vue";
+import FollowComponent from "@/components/Follow/FollowComponent.vue";
 
 export default {
-  name: "FreetComponent",
-  components: { ConnectionsComponent },
+  name: "ChannelComponent",
+  components: { FollowComponent },
   props: {
     // Data from the stored freet
-    freet: {
+    channel: {
       type: Object,
       required: true,
     },
@@ -80,13 +88,15 @@ export default {
   data() {
     return {
       editing: false, // Whether or not this freet is in edit mode
-      draft: this.freet.content, // Potentially-new content for this freet
       connections: [], // connections for a freet - init as empty list
       connectionsLoaded: false,
+      channelLoaded: false,
+      titleInput: "",
+      descriptionInput: "",
       alerts: {}, // Displays success/error messages encountered during freet modification
     };
   },
-  async mounted() {
+  async created() {
     // get connections for the freet once created
     if (!this.connectionsLoaded) {
       const options = {
@@ -94,12 +104,33 @@ export default {
         headers: { "Content-Type": "application/json" },
       };
       const r = await fetch(
-        `/api/connections?freetId=${this.freet._id}`,
+        `/api/connections?channelId=${this.channel._id}`,
         options
       );
       const res = await r.json();
       this.connectionsLoaded = true;
       this.connections = res;
+    }
+
+    // get author if not there
+    if (!this.channel.author) {
+      console.log("looking for", this.channel._id);
+      const options = {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      };
+      const r = await fetch(
+        `/api/channels?channelId=${this.channel._id}`,
+        options
+      );
+      const res = await r.json();
+      console.log(res.author);
+      this.channel = res;
+      this.channelLoaded = true;
+    } else {
+      if (this.$store.state.userFollows) {
+        this.channelLoaded = true;
+      }
     }
   },
   methods: {
@@ -121,42 +152,11 @@ export default {
       /**
        * Deletes this freet.
        */
-
-      // delete connection if no matching freet
-      for (let i = 0; i < this.connections; i++) {
-        let options = {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-        };
-        console.log("trying to delete connection...");
-        let r = await fetch(
-          `/api/connections/${this.connections[i]._id}`,
-          options
-        );
-        if (!r.ok) {
-          let res = await r.json();
-          throw new Error(res.error);
-        }
-        let res = await r.json();
-        console.log("DELETED CONNECTION", res);
-      }
-
-      // get all connections
-      fetch(`/api/connections`, {
-        credentials: "same-origin", // Sends express-session credentials with request
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          console.log("CONNECTIONS");
-          console.log(res);
-          this.$store.commit("updateConnections", res);
-        });
-
       const params = {
         method: "DELETE",
         callback: () => {
           this.$store.commit("alert", {
-            message: "Successfully deleted freet!",
+            message: "Successfully deleted channel and all connections.",
             status: "success",
           });
         },
@@ -167,24 +167,28 @@ export default {
       /**
        * Updates freet to have the submitted draft content.
        */
-      if (this.freet.content === this.draft) {
-        const error =
-          "Error: Edited freet content should be different than current freet content.";
+      if (this.titleInput === "") {
+        const error = "Error: Title must be at least one character";
         this.$set(this.alerts, error, "error"); // Set an alert to be the error text, timeout of 3000 ms
         setTimeout(() => this.$delete(this.alerts, error), 3000);
         return;
       }
 
       const params = {
-        method: "PATCH",
-        message: "Successfully edited freet!",
-        body: JSON.stringify({ content: this.draft }),
+        method: "PUT",
+        message: "Successfully edited channel",
+        body: JSON.stringify({
+          title: this.titleInput,
+          description: this.descriptionInput,
+        }),
         callback: () => {
           this.$set(this.alerts, params.message, "success");
           setTimeout(() => this.$delete(this.alerts, params.message), 3000);
         },
       };
       this.request(params);
+      this.channel.title = this.titleInput;
+      this.channel.description = this.descriptionInput;
     },
     async request(params) {
       /**
@@ -202,13 +206,13 @@ export default {
       }
 
       try {
-        const r = await fetch(`/api/freets/${this.freet._id}`, options);
+        const r = await fetch(`/api/channels/${this.channel._id}`, options);
         if (!r.ok) {
           const res = await r.json();
           throw new Error(res.error);
         }
         this.editing = false;
-        this.$store.commit("refreshFreets");
+        this.$store.commit("refreshChannels");
 
         params.callback();
       } catch (e) {
@@ -221,14 +225,46 @@ export default {
 </script>
 
 <style scoped>
-.freet {
+input {
+  padding: 10px;
+  width: 300px;
+  border: 1px solid black;
+  margin-bottom: 10px;
+}
+input:focus {
+  outline: none;
+  /* border: none; */
+}
+.channel {
   position: relative;
   margin: auto;
-  margin-top: 164px;
-  width: 800px;
+  margin-top: 50px;
+  width: 600px;
   font-size: 16px;
+  border: 1px solid black;
 }
 
+.title {
+  font-size: xx-large;
+  font-weight: 600px;
+}
+.freets {
+  display: flex;
+  overflow-x: scroll;
+  width: 600px;
+  padding: 20px;
+  padding-top: 0px;
+  flex-shrink: 1;
+}
+.freet-preview {
+  height: 300px;
+  width: 300px;
+  min-width: 300px;
+  padding: 10px;
+  border: 1px solid black;
+  overflow: scroll;
+  margin-right: 20px;
+}
 .info {
   display: flex;
   justify-content: space-between;
@@ -250,17 +286,19 @@ export default {
 }
 .header {
   padding: 20px;
-  border-bottom: 1px solid black;
-  background-color: lightgrey;
   display: flex;
   justify-content: space-between;
-  line-height: 20px;
+  line-height: 40px;
 }
-.freet-header {
-  background-color: white;
+.description {
+  padding: 20px;
+  padding-top: 0px;
 }
 .button {
   margin-left: 13px;
+  line-height: 18px;
+  height: 18px;
+  transform: translateY(12px);
 }
 .button:hover {
   cursor: pointer;
@@ -276,6 +314,7 @@ textarea:focus {
 }
 .actions {
   display: flex;
+  position: relative;
 }
 .freet-content {
   padding: 20px;
@@ -296,26 +335,10 @@ textarea:focus {
 }
 
 a {
-  text-decoration: none;
   color: black;
+  text-decoration: none;
 }
 a:hover {
-  cursor: pointer;
-  color: blueviolet;
-}
-</style>
-
-<style>
-.edit:hover {
-  background-color: yellow;
-}
-.back:hover {
-  background-color: orange;
-}
-.delete:hover {
-  background-color: red;
-}
-.update:hover {
-  background-color: rgb(0, 184, 70);
+  color: rgb(0, 184, 70);
 }
 </style>

@@ -287,7 +287,8 @@ export default {
 }
 
 .create {
-  background-color: darkgreen;
+  background-color: rgb(0, 184, 70);
+  border-top: 1px solid black;
 }
 .cancel {
   background-color: lightgray;

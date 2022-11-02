@@ -5,6 +5,8 @@ import AccountPage from "./components/Account/AccountPage.vue";
 import LoginPage from "./components/Login/LoginPage.vue";
 import NotFound from "./NotFound.vue";
 import ProfilePage from "./components/Profile/ProfilePage.vue";
+import UserPage from "./components/Profile/UserPage.vue";
+import ChannelPage from "./components/Channel/ChannelPage.vue";
 
 Vue.use(VueRouter);
 
@@ -12,6 +14,9 @@ const routes = [
   { path: "/", name: "Home", component: FreetsPage },
   { path: "/account", name: "Account", component: AccountPage },
   { path: "/profile", name: "Profile", component: ProfilePage },
+  { path: "/user/:author", name: "User", component: UserPage },
+  { path: "/channel/:channelId", name: "Channel", component: ChannelPage },
+
   { path: "/login", name: "Login", component: LoginPage },
   { path: "*", name: "Not Found", component: NotFound },
 ];

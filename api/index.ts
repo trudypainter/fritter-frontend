@@ -12,6 +12,8 @@ import { userRouter } from "../server/user/router";
 import { freetRouter } from "../server/freet/router";
 import { ConnectionRouter } from "../server/connection/router";
 import { ChannelRouter } from "../server/channel/router";
+import { FollowRouter } from "../server/follow/router";
+import { SubscribeRouter } from "../server/subscribe/router";
 
 import MongoStore from "connect-mongo";
 
@@ -78,6 +80,9 @@ app.use("/api/users", userRouter);
 app.use("/api/freets", freetRouter);
 app.use("/api/connections", ConnectionRouter);
 app.use("/api/channels", ChannelRouter);
+app.use("/api/follows", FollowRouter);
+app.use("/api/subcsribes", SubscribeRouter);
+
 // Catch all the other routes and display error message
 app.all("*", (req: Request, res: Response) => {
   res.status(404).json({
