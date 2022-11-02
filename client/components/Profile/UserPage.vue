@@ -7,6 +7,7 @@
       <!-- <div v-if="$router.params.username"><NewFreetProcess /></div> -->
       <div class="profile-bar">
         <h2>@{{ $route.params.author }}</h2>
+        <SubscribeComponent :subscribingTo="$route.params.author" />
       </div>
       <div class="channels create-new" v-if="this.channels < 1">
         No Channels created yet.
@@ -63,10 +64,11 @@ import DeleteAccountForm from "@/components/Account/DeleteAccountForm.vue";
 import LogoutForm from "@/components/Account/LogoutForm.vue";
 import ChannelComponent from "@/components/Channel/ChannelComponent.vue";
 import NewFreetProcess from "@/components/Freet/NewFreetProcess.vue";
+import SubscribeComponent from "@/components/Subscribe/SubscribeComponent.vue";
 
 export default {
   name: "UserPage",
-  components: { ChannelComponent, NewFreetProcess },
+  components: { ChannelComponent, NewFreetProcess, SubscribeComponent },
   data() {
     return {
       channels: [],

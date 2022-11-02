@@ -13,7 +13,7 @@ const store = new Vuex.Store({
     freets: [], // All freets created in the app
     userChannels: [], // All channels for signed in user
     userFollows: [], // All follows for the signed in user
-    userSubscribesTo: [], // All subscribes to other users from signed in user
+    userSubscribes: [], // All subscribes to other users from signed in user
     connections: [], // Connections for the feed
     username: null, // Username of the logged in user
     alerts: {}, // global success/error messages encountered during submissions to non-visible forms
@@ -75,7 +75,7 @@ const store = new Vuex.Store({
        * Update the subsrcibingTo for the signed in user
        * @param subscribes
        */
-      state.userSubscribesTo = subscribes;
+      state.userSubscribes = subscribes;
     },
     async refreshFreets(state) {
       /**
@@ -110,7 +110,7 @@ const store = new Vuex.Store({
        */
       const url = `/api/subscribes?author=${state.username}`;
       const res = await fetch(url).then(async (r) => r.json());
-      state.userSubscribesTo = res;
+      state.userSubscribes = res;
     },
   },
   // Store data across page refreshes, only discard on browser close

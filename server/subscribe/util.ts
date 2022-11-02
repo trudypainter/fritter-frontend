@@ -7,7 +7,9 @@ import type { Channel } from "../channel/model";
 type SubscribeResponse = {
   _id: string;
   authorId: string;
+  author: string;
   subscribingToId: string;
+  subscribingTo: string;
   dateCreated: string;
 };
 
@@ -39,7 +41,9 @@ const constructSubscribeResponse = (
     // ...SubscribeCopy,
     _id: SubscribeCopy._id.toString(),
     authorId: SubscribeCopy.authorId._id.toString(),
+    author: SubscribeCopy.authorId.username.toString(),
     subscribingToId: SubscribeCopy.subscribingToId._id.toString(),
+    subscribingTo: SubscribeCopy.subscribingToId.username.toString(),
     dateCreated: formatDate(Subscribe.dateCreated),
   };
 };
