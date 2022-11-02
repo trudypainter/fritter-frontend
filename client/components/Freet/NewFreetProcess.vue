@@ -30,7 +30,10 @@
         </div>
       </div>
       <div class="connections">
-        <ConnectionForNewFreet :draft="this.draft" />
+        <ConnectionForNewFreet
+          @setEditing="(state) => (this.editing = state)"
+          :draft="this.draft"
+        />
       </div>
     </div>
 

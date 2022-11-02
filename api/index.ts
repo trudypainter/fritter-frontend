@@ -81,7 +81,7 @@ app.use("/api/freets", freetRouter);
 app.use("/api/connections", ConnectionRouter);
 app.use("/api/channels", ChannelRouter);
 app.use("/api/follows", FollowRouter);
-app.use("/api/subcsribes", SubscribeRouter);
+app.use("/api/subscribes", SubscribeRouter);
 
 // Catch all the other routes and display error message
 app.all("*", (req: Request, res: Response) => {

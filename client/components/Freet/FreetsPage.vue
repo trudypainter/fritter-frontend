@@ -95,7 +95,7 @@ export default {
     NewFreetProcess,
   },
   mounted() {
-    this.$refs.getFreetsForm.submit();
+    // this.$refs.getFreetsForm.submit();
 
     // get all of a users channels
     if (this.$store.state.username) {

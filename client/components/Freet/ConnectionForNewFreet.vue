@@ -34,10 +34,11 @@
       </div>
       <div
         class="new-connections-button"
-        :class="{ create: title !== '', addtitle: title === '' }"
+        :class="{ create: title !== '', addtitle: title === '' || submitting }"
       >
+        <div v-if="submitting">Submitting...</div>
         <div
-          v-if="title !== '' && this.draft !== ''"
+          v-else-if="title !== '' && this.draft !== ''"
           @click="createChannelAndConnection()"
         >
           Create Channel and Connection +
@@ -111,6 +112,7 @@ export default {
       channelSelectedId: undefined,
       title: "",
       description: "",
+      submitting: false,
     };
   },
   async created() {},
@@ -130,6 +132,7 @@ export default {
     async createChannelAndConnection() {
       // create channel -> then immediately create connection to new channel
 
+      this.submitting = true;
       try {
         // create new freet
         const freetOptions = {
@@ -198,12 +201,14 @@ export default {
 
         // reset state
         this.state = 1;
+        this.submitting = false;
 
         // close window
-        this.$emit("editing", false);
+        this.$emit("setEditing", false);
       } catch (e) {
         this.$set(this.alerts, e, "error");
         setTimeout(() => this.$delete(this.alerts, e), 5000);
+        this.submitting = false;
       }
     },
     existingChannelSelected(channelId) {
@@ -212,6 +217,7 @@ export default {
     },
     async submitConnectionCreation(channelId) {
       console.log(this.channelSelectedId);
+      this.submitting = true;
 
       try {
         // create new freet
@@ -256,11 +262,12 @@ export default {
         this.state = 1;
 
         // close window
-        this.$emit("editing", false);
+        this.$emit("setEditing", false);
       } catch (e) {
         this.$set(this.alerts, e, "error");
         setTimeout(() => this.$delete(this.alerts, e), 3000);
       }
+      this.submitting = false;
     },
   },
 };
