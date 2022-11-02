@@ -81,7 +81,7 @@ export default {
     return {
       editing: false, // Whether or not this freet is in edit mode
       draft: this.freet.content, // Potentially-new content for this freet
-      connections: [], // connections for a freet - init as empty list
+      connections: null, // connections for a freet - init as empty list
       connectionsLoaded: false,
       alerts: {}, // Displays success/error messages encountered during freet modification
     };

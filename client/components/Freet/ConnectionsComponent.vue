@@ -5,9 +5,12 @@
     <!-- STATE 0 -->
     <div v-if="this.state == 0">
       <div class="connections-header">
-        {{ this.connections.length }} Connections
+        <span v-if="this.connections !== null"
+          >{{ this.connections.length }} Connections
+        </span>
+        <span v-else>Loading...</span>
       </div>
-      <div class="connections-list">
+      <div v-if="this.connections !== null" class="connections-list">
         <div v-for="connection in this.connections" class="channel-row">
           <div>
             <router-link
@@ -120,6 +123,7 @@ export default {
     return {
       alerts: {},
       state: 0,
+      loaded: false,
       channelSelectedId: undefined,
       title: "",
       description: "",
