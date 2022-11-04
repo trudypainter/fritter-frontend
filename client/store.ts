@@ -9,13 +9,16 @@ Vue.use(Vuex);
  */
 const store = new Vuex.Store({
   state: {
-    filter: null, // Username to filter shown freets by (null = show all)
     freets: [], // All freets created in the app
+    subscribedFreets: [], // all freets from users that logged in person is subscribed to
+    connections: [], // Connections for the feed
+    subscribedConnections: [], // all connections from channels that logged in person is following
+
     userChannels: [], // All channels for signed in user
     userFollows: [], // All follows for the signed in user
     userSubscribes: [], // All subscribes to other users from signed in user
-    connections: [], // Connections for the feed
     username: null, // Username of the logged in user
+    userId: null, // user id of logged in user
     alerts: {}, // global success/error messages encountered during submissions to non-visible forms
   },
   mutations: {
@@ -35,12 +38,12 @@ const store = new Vuex.Store({
        */
       state.username = username;
     },
-    updateFilter(state, filter) {
+    setUserId(state, userId) {
       /**
-       * Update the stored freets filter to the specified one.
-       * @param filter - Username of the user to fitler freets by
+       * Update the stored username to the specified one.
+       * @param userId - new username to set
        */
-      state.filter = filter;
+      state.userId = userId;
     },
     updateFreets(state, freets) {
       /**
@@ -77,13 +80,22 @@ const store = new Vuex.Store({
        */
       state.userSubscribes = subscribes;
     },
-    async refreshFreets(state) {
+    async refreshSubsribedFreets(state) {
+      /**
+       * Request the server for the freets from users logged in user subscribes to
+       */
+
+      let url = "/api/freets/subscribed";
+      let res = await fetch(url).then(async (r) => r.json());
+
+      // sort them by date
+      state.subscribedFreets = res;
+    },
+    async refreshAllFreets(state) {
       /**
        * Request the server for the currently available freets.
        */
-      const url = state.filter
-        ? `/api/users/${state.filter}/freets`
-        : "/api/freets";
+      const url = "/api/freets";
       const res = await fetch(url).then(async (r) => r.json());
       state.freets = res;
     },
@@ -101,7 +113,6 @@ const store = new Vuex.Store({
        */
       const url = `/api/follows?author=${state.username}`;
       const res = await fetch(url).then(async (r) => r.json());
-      console.log("updated follows...", res, state.username);
       state.userFollows = res;
     },
     async refreshUserSubscribes(state) {

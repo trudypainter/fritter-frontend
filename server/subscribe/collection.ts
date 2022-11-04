@@ -32,7 +32,7 @@ class SubscribeCollection {
       dateModified: date,
     });
     await Subscribe.save(); // Saves Subscribe to MongoDB
-    return Subscribe.populate("authorId");
+    return (await Subscribe.populate("authorId")).populate("subscribingToId");
   }
 
   /**

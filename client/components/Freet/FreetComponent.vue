@@ -240,6 +240,7 @@ export default {
 }
 .freet-container {
   width: 100%;
+  text-align: left;
   display: flex;
 }
 .content {

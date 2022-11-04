@@ -4,7 +4,9 @@ import FreetCollection from "./collection";
 import * as userValidator from "../user/middleware";
 import * as freetValidator from "../freet/middleware";
 import * as util from "./util";
+import { Freet } from "../freet/model";
 import ConnectionCollection from "../connection/collection";
+import SubscribeCollection from "../subscribe/collection";
 
 const router = express.Router();
 
@@ -19,9 +21,9 @@ const router = express.Router();
 /**
  * Get freets by author.
  *
- * @name GET /api/freets?authorId=id
+ * @name GET /api/freets?author=username
  *
- * @return {FreetResponse[]} - An array of freets created by user with id, authorId
+ * @return {FreetResponse[]} - An array of freets created by user with username
  * @throws {400} - If authorId is not given
  * @throws {404} - If no user has given authorId
  *
@@ -30,7 +32,6 @@ router.get(
   "/",
   async (req: Request, res: Response, next: NextFunction) => {
     if (req.query.freetId !== undefined) {
-      console.log("freeet.....");
       const freet = await FreetCollection.findOne(req.query.freetId.toString());
       const response = util.constructFreetResponse(freet);
       res.status(200).json(response);
@@ -53,6 +54,42 @@ router.get(
       req.query.author as string
     );
     const response = authorFreets.map(util.constructFreetResponse);
+    res.status(200).json(response);
+  }
+);
+
+/**
+ * Get freets from users that signed in user subscribes to
+ *
+ * @name GET /api/freets/subscribed
+ *
+ * @return {FreetResponse[]} - An array of freets created by user with username
+ * @throws {400} - If authorId is not given
+ * @throws {404} - If no user has given authorId
+ *
+ */
+router.get(
+  "/subscribed",
+  [userValidator.isUserLoggedIn],
+  async (req: Request, res: Response) => {
+    const userSubscribes = await SubscribeCollection.findAllByAuthorId(
+      req.session.userId as string
+    );
+
+    let freets = await Promise.all(
+      userSubscribes.map((subscribe: any) =>
+        FreetCollection.findAllByUsername(
+          subscribe.subscribingToId.username.toString()
+        )
+      )
+    );
+
+    let freetsFlat = freets.flat();
+    freetsFlat.sort((a: Freet, b: Freet) => {
+      return a.dateModified.getTime() - b.dateModified.getTime();
+    });
+
+    const response = freetsFlat.map(util.constructFreetResponse);
     res.status(200).json(response);
   }
 );

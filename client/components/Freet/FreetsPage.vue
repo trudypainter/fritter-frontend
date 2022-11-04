@@ -4,69 +4,79 @@
   <main>
     <section v-if="$store.state.username">
       <NewFreetProcess />
+
+      <section>
+        <div class="menu">
+          <p
+            @click="freetsSelected()"
+            @mouseover="freetsHovered = true"
+            @mouseleave="freetsHovered = false"
+            :class="{ selected: freetSelected }"
+          >
+            Freets
+          </p>
+          <p
+            @click="connectionsSelected()"
+            @mouseover="connectionsHovered = true"
+            @mouseleave="connectionsHovered = false"
+            :class="{ selected: !freetSelected }"
+          >
+            Connections
+          </p>
+          <div v-if="connectionsHovered">
+            Connections in your feed are from Channels you Follow.
+          </div>
+          <div v-if="freetsHovered">
+            Freets in your feed are from Users you Subscribe To.
+          </div>
+        </div>
+
+        <div v-if="freetSelected">
+          <section v-if="$store.state.subscribedFreets.length">
+            <FreetComponent
+              v-for="freet in $store.state.subscribedFreets"
+              :key="freet.id"
+              :freet="freet"
+            />
+          </section>
+          <article class="no-freets welcome" v-else>
+            <br />
+            <div>
+              Users must Subscribe to other Users to see their Freets in their
+              Feed. <br />
+              For now, check out all the Freet activity on the app...
+            </div>
+            <section>
+              <FreetComponent
+                v-for="freet in $store.state.freets"
+                :key="freet.id"
+                :freet="freet"
+              />
+            </section>
+          </article>
+        </div>
+        <div v-else>
+          <section v-if="$store.state.connections.length">
+            <ContainerComponent
+              v-for="connection in $store.state.connections"
+              :key="connection.id"
+              :connection="connection"
+            />
+          </section>
+          <article class="no-freets" v-else>
+            <h3>No connections found. Try following some channels.</h3>
+          </article>
+        </div>
+      </section>
     </section>
     <section class="welcome" v-else>
-      <div>
-        <h2>Welcome to Fritter!</h2>
-      </div>
       <article>
-        <h3>
+        <div>
+          <br />
           <router-link to="/login"> Sign in</router-link>
           to create, edit, and delete freets.
-        </h3>
+        </div>
       </article>
-    </section>
-
-    <section>
-      <div class="menu">
-        <p
-          @click="freetsSelected()"
-          @mouseover="freetsHovered = true"
-          @mouseleave="freetsHovered = false"
-          :class="{ selected: freetSelected }"
-        >
-          Freets
-        </p>
-        <p
-          @click="connectionsSelected()"
-          @mouseover="connectionsHovered = true"
-          @mouseleave="connectionsHovered = false"
-          :class="{ selected: !freetSelected }"
-        >
-          Connections
-        </p>
-        <div v-if="connectionsHovered">
-          Connections in your feed are from Channels you Follow.
-        </div>
-        <div v-if="freetsHovered">
-          Freets in your feed are from Users you Subscribe To.
-        </div>
-      </div>
-
-      <div v-if="freetSelected">
-        <section v-if="$store.state.freets.length">
-          <FreetComponent
-            v-for="freet in $store.state.freets"
-            :key="freet.id"
-            :freet="freet"
-          />
-        </section>
-        <article class="no-freets" v-else>
-          <h3>No freets found.</h3>
-        </article>
-      </div>
-      <div v-else>
-        <section v-if="$store.state.connections.length">
-          <ContainerComponent
-            v-for="connection in $store.state.connections"
-            :key="connection.id"
-            :connection="connection"
-          />
-        </section>
-        <article class="no-freets" v-else>
-          <h3>No freets found.</h3>
-        </article>
-      </div>
     </section>
   </main>
 </template>
@@ -93,21 +103,6 @@ export default {
     CreateFreetForm,
     ContainerComponent,
     NewFreetProcess,
-  },
-  mounted() {
-    // this.$refs.getFreetsForm.submit();
-
-    // get all of a users channels
-    if (this.$store.state.username) {
-      fetch(`/api/channels?author=${this.$store.state.username}`, {
-        credentials: "same-origin", // Sends express-session credentials with request
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          console.log(res);
-          this.$store.commit("updateChannels", res);
-        });
-    }
   },
   methods: {
     connectionsSelected() {
@@ -137,6 +132,23 @@ header > * {
 
 button {
   margin-right: 10px;
+}
+
+h2 {
+  font-weight: 900px;
+  font-size: 48px;
+}
+
+@keyframes animated_text {
+  0% {
+    background-position: 0px 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0px 50%;
+  }
 }
 
 .menu {

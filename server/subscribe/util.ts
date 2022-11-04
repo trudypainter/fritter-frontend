@@ -37,6 +37,10 @@ const constructSubscribeResponse = (
       versionKey: false, // Cosmetics; prevents returning of __v property
     }),
   };
+  console.log("subscribe copy", SubscribeCopy.toString());
+
+  console.log("subscribe copy", SubscribeCopy.subscribingToId.toString());
+
   return {
     // ...SubscribeCopy,
     _id: SubscribeCopy._id.toString(),

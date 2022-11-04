@@ -94,6 +94,7 @@ export default {
       this.isSubscribeing = false;
       console.log("DELETED subscribe", res);
       this.$store.commit("refreshUserSubscribes");
+      this.$store.commit("refreshSubsribedFreets");
     },
     async subscribeClicked() {
       /**
@@ -129,6 +130,8 @@ export default {
       setTimeout(() => this.$delete(this.alerts, "Subscribeed to user!"), 3000);
       this.isSubscribeing = true;
       this.$store.commit("refreshUserSubscribes");
+      this.$store.commit("refreshSubsribedFreets");
+
       return;
     },
   },

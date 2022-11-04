@@ -23,10 +23,14 @@ export default {
         console.log("USER SESSION", res);
         const user = res.user;
         this.$store.commit("setUsername", user ? user.username : null);
+        this.$store.commit("setUserId", user ? user._id : null);
 
         if (user) {
           // pull user channels
           this.$store.commit("refreshUserChannels");
+
+          // pull user subscribed freets
+          this.$store.commit("refreshSubsribedFreets");
 
           // pull user follows
           this.$store.commit("refreshUserFollows");
