@@ -139,14 +139,14 @@ export default {
        * Enables edit mode on this freet.
        */
       this.editing = true; // Keeps track of if a freet is being edited
-      this.draft = this.freet.content; // The content of our current "draft" while being edited
+      //   this.draft = this.freet.content; // The content of our current "draft" while being edited
     },
     stopEditing() {
       /**
        * Disables edit mode on this freet.
        */
       this.editing = false;
-      this.draft = this.freet.content;
+      //   this.draft = this.freet.content;
     },
     async deleteFreet() {
       /**
