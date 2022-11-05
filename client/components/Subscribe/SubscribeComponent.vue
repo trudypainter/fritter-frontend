@@ -2,7 +2,10 @@
 <!-- We've tagged some elements with classes; consider writing CSS using those classes to style them... -->
 
 <template>
-  <article class="subscribe-button">
+  <article
+    v-if="$store.state.username !== subscribingTo"
+    class="subscribe-button"
+  >
     <div v-if="!loaded">Loading...</div>
     <div v-else>
       <div

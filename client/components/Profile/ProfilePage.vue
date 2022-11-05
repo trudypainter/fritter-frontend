@@ -15,6 +15,8 @@
           class="menu-button"
           :class="{ selected: state === 0 }"
           @click="state = 0"
+          @mouseover="hovering0 = true"
+          @mouseleave="hovering0 = false"
         >
           Channels
         </div>
@@ -22,6 +24,8 @@
           class="menu-button"
           :class="{ selected: state === 1 }"
           @click="state = 1"
+          @mouseover="hovering1 = true"
+          @mouseleave="hovering1 = false"
         >
           Following
         </div>
@@ -29,6 +33,8 @@
           class="menu-button"
           :class="{ selected: state === 2 }"
           @click="state = 2"
+          @mouseover="hovering2 = true"
+          @mouseleave="hovering2 = false"
         >
           Subscribing To
         </div>
@@ -36,6 +42,8 @@
           class="menu-button"
           :class="{ selected: state === 3 }"
           @click="state = 3"
+          @mouseover="hovering3 = true"
+          @mouseleave="hovering3 = false"
         >
           Freets
         </div>
@@ -43,8 +51,24 @@
           class="menu-button"
           :class="{ selected: state === 4 }"
           @click="state = 4"
+          @mouseover="hovering4 = true"
+          @mouseleave="hovering4 = false"
         >
           Connections
+        </div>
+      </div>
+
+      <div class="info">
+        <div class="message" v-if="hovering0">
+          Channels created by this User
+        </div>
+        <div class="message" v-if="hovering1">Channels this User Follows</div>
+        <div class="message" v-if="hovering2">
+          Other Users this User Subscribes to
+        </div>
+        <div class="message" v-if="hovering3">Freets this User created</div>
+        <div class="message" v-if="hovering4">
+          Connections this User created
         </div>
       </div>
 
@@ -175,6 +199,20 @@ a:hover {
   height: 80px;
   margin-bottom: 20px;
 }
+
+.info {
+  width: 600px;
+  color: gray;
+  font-style: italic;
+  margin: auto;
+  height: 0px;
+  font-size: 14px;
+  position: relative;
+}
+
+.message {
+  transform: translateY(10px);
+}
 </style>
 
 <script>
@@ -203,6 +241,11 @@ export default {
       freets: [],
       connections: [],
       state: 0,
+      hovering0: false,
+      hovering1: false,
+      hovering2: false,
+      hovering3: false,
+      hovering4: false,
     };
   },
   computed: {
