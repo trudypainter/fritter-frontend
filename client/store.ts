@@ -15,6 +15,8 @@ const store = new Vuex.Store({
     followedConnections: [], // all connections from channels that logged in person is following
 
     userChannels: [], // All channels for signed in user
+    userFreets: [], // All freetes for signed in user
+    userConnections: [], // All connections for signed in user
     userFollows: [], // All follows for the signed in user
     userSubscribes: [], // All subscribes to other users from signed in user
     username: null, // Username of the logged in user
@@ -133,6 +135,22 @@ const store = new Vuex.Store({
       const url = `/api/subscribes?author=${state.username}`;
       const res = await fetch(url).then(async (r) => r.json());
       state.userSubscribes = res;
+    },
+    async refreshUserFreets(state) {
+      /**
+       *  Request the server for the user's subscribes.
+       */
+      const url = `/api/freets?author=${state.username}`;
+      const res = await fetch(url).then(async (r) => r.json());
+      state.userFreets = res;
+    },
+    async refreshUserConnections(state) {
+      /**
+       *  Request the server for the user's subscribes.
+       */
+      const url = `/api/connections?author=${state.username}`;
+      const res = await fetch(url).then(async (r) => r.json());
+      state.userConnections = res;
     },
   },
   // Store data across page refreshes, only discard on browser close

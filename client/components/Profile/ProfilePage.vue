@@ -49,46 +49,59 @@
       </div>
 
       <div>
-        <div
-          class="channels create-new"
-          v-if="state === 0 && this.userChannels.length < 1"
-        >
-          No Channels created yet.
+        <!-- user channels -->
+        <div v-if="state === 0" class="channels">
+          <div class="create-new" v-if="this.userChannels.length < 1">
+            No Channels created yet.
+          </div>
+          <div v-else v-for="channel in this.userChannels">
+            <ChannelComponent :channel="channel" />
+          </div>
         </div>
-        <div
-          v-if="state === 0"
-          class="channels"
-          v-for="channel in this.userChannels"
-        >
-          <ChannelComponent :channel="channel" />
+
+        <!-- followed channels -->
+        <div v-if="state === 1" class="channels">
+          <div class="create-new" v-if="this.userFollows.length < 1">
+            You do not follow any channels.
+          </div>
+          <div v-else v-for="follow in this.userFollows">
+            <ChannelComponent :channel="follow.channel" />
+          </div>
         </div>
-        <div
-          v-if="state === 1"
-          class="channels"
-          v-for="follow in this.userFollows"
-        >
-          <ChannelComponent :channel="follow.channel" />
+
+        <!-- subscribed to users -->
+        <div v-if="state === 2" class="channels">
+          <div class="create-new" v-if="this.userSubscribes.length < 1">
+            You do not subscribe to any users.
+          </div>
+          <div v-else v-for="subscribe in this.userSubscribes">
+            <div class="user-container">
+              <router-link :to="`/user/${subscribe.subscribingTo}`"
+                >@{{ subscribe.subscribingTo }}</router-link
+              >
+              <SubscribeComponent :subscribingTo="subscribe.subscribingTo" />
+            </div>
+          </div>
         </div>
-        <div
-          v-if="state === 2"
-          class="channels"
-          v-for="channel in this.userChannels"
-        >
-          <ChannelComponent :channel="channel" />
+
+        <!-- users freets -->
+        <div v-if="state === 3" class="channels">
+          <div class="create-new" v-if="this.userFreets.length < 1">
+            You have not created any Freets.
+          </div>
+          <div v-else v-for="freet in this.userFreets">
+            <FreetComponent :freet="freet" />
+          </div>
         </div>
-        <div
-          v-if="state === 3"
-          class="channels"
-          v-for="channel in this.userChannels"
-        >
-          <ChannelComponent :channel="channel" />
-        </div>
-        <div
-          v-if="state === 4"
-          class="channels"
-          v-for="channel in this.userChannels"
-        >
-          <ChannelComponent :channel="channel" />
+
+        <!-- users connections -->
+        <div v-if="state === 4" class="channels">
+          <div class="create-new" v-if="this.userConnections.length < 1">
+            You have not created any Connections.
+          </div>
+          <div v-else v-for="connection in this.userConnections">
+            <ContainerComponent :connection="connection" />
+          </div>
         </div>
       </div>
     </section>
@@ -150,6 +163,18 @@ a:hover {
   padding: 20px;
   margin-top: 10px;
 }
+
+.user-container {
+  padding: 20px;
+  border: 1px solid black;
+  width: 400px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 80px;
+  margin-bottom: 20px;
+}
 </style>
 
 <script>
@@ -159,13 +184,24 @@ import DeleteAccountForm from "@/components/Account/DeleteAccountForm.vue";
 import LogoutForm from "@/components/Account/LogoutForm.vue";
 import ChannelComponent from "@/components/Channel/ChannelComponent.vue";
 import NewFreetProcess from "@/components/Freet/NewFreetProcess.vue";
+import SubscribeComponent from "@/components/Subscribe/SubscribeComponent.vue";
+import FreetComponent from "@/components/Freet/FreetComponent.vue";
+import ContainerComponent from "@/components/Connection/ContainerComponent.vue";
 
 export default {
   name: "ProfilePage",
-  components: { ChannelComponent, NewFreetProcess },
+  components: {
+    ChannelComponent,
+    NewFreetProcess,
+    SubscribeComponent,
+    ContainerComponent,
+    FreetComponent,
+  },
   data() {
     return {
-      channels: [],
+      // channels: [],
+      freets: [],
+      connections: [],
       state: 0,
     };
   },
@@ -176,17 +212,17 @@ export default {
     userFollows: function () {
       return this.$store.state.userFollows;
     },
+    userSubscribes: function () {
+      return this.$store.state.userSubscribes;
+    },
+
+    userFreets: function () {
+      return this.$store.state.userFreets;
+    },
+    userConnections: function () {
+      return this.$store.state.userConnections;
+    },
   },
-  beforeCreate() {
-    if (this.$store.state.username) {
-      fetch(`/api/channels?author=${this.$store.state.username}`, {
-        credentials: "same-origin", // Sends express-session credentials with request
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          this.channels = res;
-        });
-    }
-  },
+  beforeCreate() {},
 };
 </script>
