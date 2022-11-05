@@ -129,6 +129,13 @@ export default {
       } catch (e) {
         this.$set(this.alerts, e, "error");
         setTimeout(() => this.$delete(this.alerts, e), 3000);
+
+        // pull user channels
+        this.$store.commit("refreshUserChannels");
+        // pull user created freets
+        this.$store.commit("refreshUserFreets");
+        // pull user created connections
+        this.$store.commit("refreshUserConnections");
       }
     },
   },

@@ -162,9 +162,6 @@ export default {
         },
       };
       this.request(params);
-
-      this.$store.commit("refreshUserFreets");
-      this.$store.commit("refreshUserConnections");
     },
     submitEdit() {
       /**
@@ -211,13 +208,24 @@ export default {
           throw new Error(res.error);
         }
         this.editing = false;
+
+        // pull user channels
+        this.$store.commit("refreshUserChannels");
+        // pull user created freets
         this.$store.commit("refreshUserFreets");
+        // pull user created connections
+        this.$store.commit("refreshUserConnections");
 
         params.callback();
       } catch (e) {
         this.$set(this.alerts, e, "error");
         setTimeout(() => this.$delete(this.alerts, e), 3000);
+        // pull user channels
+        this.$store.commit("refreshUserChannels");
+        // pull user created freets
         this.$store.commit("refreshUserFreets");
+        // pull user created connections
+        this.$store.commit("refreshUserConnections");
       }
     },
   },

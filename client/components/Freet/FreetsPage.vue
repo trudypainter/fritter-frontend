@@ -160,6 +160,14 @@ h2 {
   }
 }
 
+a {
+  color: blue;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
 .menu {
   padding: 14px;
   margin: auto;

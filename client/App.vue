@@ -26,11 +26,11 @@ export default {
         this.$store.commit("setUserId", user ? user._id : null);
 
         if (user) {
-          // pull user channels
-          this.$store.commit("refreshUserChannels");
-
           // pull user subscribed freets
           this.$store.commit("refreshSubsribedFreets");
+
+          // pull user channels
+          this.$store.commit("refreshUserChannels");
 
           // pull user created freets
           this.$store.commit("refreshUserFreets");
