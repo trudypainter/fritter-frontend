@@ -32,6 +32,9 @@ export default {
           // pull user subscribed freets
           this.$store.commit("refreshSubsribedFreets");
 
+          // pull followe channel connections
+          this.$store.commit("refreshFollowedConnections");
+
           // pull user follows
           this.$store.commit("refreshUserFollows");
 

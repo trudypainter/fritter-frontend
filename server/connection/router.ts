@@ -6,8 +6,54 @@ import * as ConnectionValidator from "../connection/middleware";
 import * as FreetValidator from "../freet/middleware";
 import * as ChannelValidator from "../channel/middleware";
 import * as util from "./util";
+import FollowCollection from "../follow/collection";
+import { Connection } from "../connection/model";
 
 const router = express.Router();
+
+/**
+ * Get Connections for signed in user's followed channels
+ *
+ * @name GET /api/connections/followed
+ *
+ * @return {ConnectionResponse[]} - An array of Connections created by user with id, freetId
+ * @throws {400} - If freetId is not given
+ * @throws {404} - If no user has given freetId
+ *
+ */
+
+router.get(
+  "/followed",
+  [userValidator.isUserLoggedIn],
+  async (req: Request, res: Response) => {
+    // const channelConnections = await ConnectionCollection.findAllByFreetId(
+    //   req.query.freetId.toString()
+    // );
+    // const response = channelConnections.map(util.constructConnectionResponse);
+    // res.status(200).json(response);
+    console.log("GOT TO FOLLOWED....");
+
+    const userFollows = await FollowCollection.findAllByUserId(
+      req.session.userId as string
+    );
+
+    console.log(userFollows[0]);
+
+    let connections = await Promise.all(
+      userFollows.map((follow: any) =>
+        ConnectionCollection.findAllByChannelId(follow.channelId._id.toString())
+      )
+    );
+
+    let connectionsFlat = connections.flat();
+    connectionsFlat.sort((a: Connection, b: Connection) => {
+      return a.dateCreated.getTime() - b.dateCreated.getTime();
+    });
+
+    const response = connectionsFlat.map(util.constructConnectionResponse);
+    res.status(200).json(response);
+  }
+);
 
 /**
  * Get the connection metadata

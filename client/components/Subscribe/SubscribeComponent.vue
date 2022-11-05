@@ -53,6 +53,7 @@ export default {
     // make sure the user isnt already subscribed
     const url = `/api/subscribes?author=${this.$store.state.username}`;
     const userSubscribes = await fetch(url).then(async (r) => r.json());
+    console.log("🟢 user subscribes", userSubscribes);
 
     for (const userSubscribe of userSubscribes) {
       if (userSubscribe.subscribingTo === this.subscribingTo) {

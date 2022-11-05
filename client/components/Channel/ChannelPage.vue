@@ -3,8 +3,27 @@
 
 <template>
   <article class="channel">
-    <div class="title">
-      {{ this.channel.title }}
+    <div class="header">
+      <div class="title">
+        {{ this.channel.title }}
+      </div>
+      <div class="actions">
+        <div v-if="$store.state.username === channel.author" class="actions">
+          <div class="button update" v-if="editing" @click="submitEdit">
+            Update
+          </div>
+          <div class="button back" v-if="editing" @click="stopEditing">
+            Back
+          </div>
+          <div class="button edit" v-if="!editing" @click="startEditing">
+            Edit
+          </div>
+          <div class="button delete" @click="deleteFreet">Delete</div>
+        </div>
+        <div v-else>
+          <FollowComponent :channelId="`${this.channel._id}`" />
+        </div>
+      </div>
     </div>
     <div class="description">
       {{ this.channel.description }}
@@ -42,10 +61,11 @@
 
 <script>
 import ContainerComponent from "@/components/Connection/ContainerComponent.vue";
+import FollowComponent from "@/components/Follow/FollowComponent.vue";
 
 export default {
   name: "ChannelPage",
-  components: { ContainerComponent },
+  components: { ContainerComponent, FollowComponent },
   props: {
     // Data from the stored freet
     channel: {
@@ -102,6 +122,12 @@ export default {
   margin: auto;
   margin-top: 150px;
 }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+}
+
 .title {
   font-size: xx-large;
 }
@@ -120,5 +146,9 @@ a {
 }
 a:hover {
   color: blueviolet;
+}
+.actions {
+  display: flex;
+  position: relative;
 }
 </style>

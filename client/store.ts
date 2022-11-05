@@ -12,7 +12,7 @@ const store = new Vuex.Store({
     freets: [], // All freets created in the app
     subscribedFreets: [], // all freets from users that logged in person is subscribed to
     connections: [], // Connections for the feed
-    subscribedConnections: [], // all connections from channels that logged in person is following
+    followedConnections: [], // all connections from channels that logged in person is following
 
     userChannels: [], // All channels for signed in user
     userFollows: [], // All follows for the signed in user
@@ -98,6 +98,17 @@ const store = new Vuex.Store({
       const url = "/api/freets";
       const res = await fetch(url).then(async (r) => r.json());
       state.freets = res;
+    },
+    async refreshFollowedConnections(state) {
+      /**
+       * Request the server for the freets from users logged in user subscribes to
+       */
+
+      let url = "/api/connections/followed";
+      let res = await fetch(url).then(async (r) => r.json());
+
+      // sort them by date
+      state.followedConnections = res;
     },
     async refreshUserChannels(state) {
       /**

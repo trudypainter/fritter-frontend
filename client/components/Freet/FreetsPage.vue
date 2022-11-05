@@ -56,15 +56,26 @@
           </article>
         </div>
         <div v-else>
-          <section v-if="$store.state.connections.length">
+          <section v-if="$store.state.followedConnections.length">
             <ContainerComponent
-              v-for="connection in $store.state.connections"
+              v-for="connection in $store.state.followedConnections"
               :key="connection.id"
               :connection="connection"
             />
           </section>
-          <article class="no-freets" v-else>
-            <h3>No connections found. Try following some channels.</h3>
+          <article class="no-freets welcome" v-else>
+            <div>
+              No connections found. Try following some channels.
+              <br />
+              For now, check out all the Connection activity on the app...
+            </div>
+            <section>
+              <ContainerComponent
+                v-for="connection in $store.state.connections"
+                :key="connection.id"
+                :connection="connection"
+              />
+            </section>
           </article>
         </div>
       </section>
@@ -107,11 +118,9 @@ export default {
   methods: {
     connectionsSelected() {
       this.freetSelected = false;
-      console.log(this.$store.state.connections);
     },
     freetsSelected() {
       this.freetSelected = true;
-      console.log(this.$store.state.freets);
     },
   },
 };

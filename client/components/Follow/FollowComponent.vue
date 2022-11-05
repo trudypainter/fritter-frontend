@@ -3,7 +3,8 @@
 
 <template>
   <article class="follow-button">
-    <div>
+    <div v-if="!loaded">Loading..</div>
+    <div v-else>
       <div class="unfollow" @click="unfollowClicked()" v-if="isFollowing">
         Unfollow
       </div>
@@ -43,19 +44,19 @@ export default {
       return this.$store.state.userFollows;
     },
   },
-  async created() {
-    console.log("USER FOLLOWS computed", this.userFollows);
+  async beforeCreate() {
+    // make sure the user isnt already following
+    const url = `/api/follows?author=${this.$store.state.username}`;
+    const userFollows = await fetch(url).then(async (r) => r.json());
+    console.log("🟢 user follows", userFollows);
 
-    for (const userFollow of this.$store.state.userFollows) {
+    for (const userFollow of userFollows) {
       if (userFollow.channel._id === this.channelId) {
         this.follow = userFollow;
         this.isFollowing = true;
       }
     }
-
-    // check if a follow object already exists
-    if (this.$store.userFollows) {
-    }
+    this.loaded = true;
   },
   methods: {
     async unfollowClicked() {
@@ -83,6 +84,7 @@ export default {
       this.isFollowing = false;
       console.log("DELETED follow", res);
       this.$store.commit("refreshUserFollows");
+      this.$store.commit("refreshFollowedConnections");
     },
     async followClicked() {
       /**
@@ -118,6 +120,8 @@ export default {
       setTimeout(() => this.$delete(this.alerts, "Followed channel!"), 3000);
       this.isFollowing = true;
       this.$store.commit("refreshUserFollows");
+      this.$store.commit("refreshFollowedConnections");
+
       return;
     },
   },
