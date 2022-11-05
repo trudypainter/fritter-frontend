@@ -4,11 +4,16 @@
   <article class="connection">
     <FreetComponent v-if="gotAuthor" :freet="this.connection.freet" />
     <div class="info">
-      <div>
+      <div class="more">
         @{{ this.connection.author }} connected this to
         <i>{{ this.connection.channel.title }}</i>
       </div>
-      <div class="date">on {{ connection.dateCreated }}</div>
+      <div class="date more">on {{ connection.dateCreated }}</div>
+      <div v-if="$store.state.username === this.connection.author">
+        <div class="delete-button" @click="deleteConnection">
+          Delete Connection
+        </div>
+      </div>
     </div>
   </article>
 </template>
@@ -48,7 +53,38 @@ export default {
     this.freet.author = res.author;
     this.gotAuthor = true;
   },
-  methods: {},
+  methods: {
+    async deleteConnection() {
+      /**
+       * Deletes this connection.
+       */
+
+      let options = {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      };
+      console.log("trying to delete connection...", this.connection._id);
+      let r = await fetch(`/api/connections/${this.connection._id}`, options);
+      if (!r.ok) {
+        let res = await r.json();
+        throw new Error(res.error);
+        this.$set(this.alerts, "Error deleting freet", "error");
+        setTimeout(
+          () => this.$delete(this.alerts, "Error deleting freet"),
+          3000
+        );
+      }
+      let res = await r.json();
+      this.$set(this.alerts, "Deleted Connection", "success");
+      setTimeout(() => this.$delete(this.alerts, "Deleted Connection"), 3000);
+
+      // pull user created freets
+      this.$store.commit("refreshUserFreets");
+
+      // pull user created connections
+      this.$store.commit("refreshUserConnections");
+    },
+  },
 };
 </script>
 
@@ -60,6 +96,7 @@ export default {
   background-color: yellow;
   border: 1px solid black;
   padding: 20px;
+  padding-bottom: 10px;
   margin: auto;
   margin-top: 10px;
   margin-bottom: 20px;
@@ -67,11 +104,23 @@ export default {
   text-align: center;
 }
 
-.info div {
+.more {
   width: 100%;
 }
 .date {
   font-size: 16px;
   margin-top: 10px;
+}
+
+.delete-button {
+  width: 160px;
+  font-size: 16px;
+  font-style: italic;
+  padding: 10px;
+}
+
+.delete-button:hover {
+  background-color: red;
+  cursor: pointer;
 }
 </style>

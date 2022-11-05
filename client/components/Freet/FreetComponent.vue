@@ -162,6 +162,9 @@ export default {
         },
       };
       this.request(params);
+
+      this.$store.commit("refreshUserFreets");
+      this.$store.commit("refreshUserConnections");
     },
     submitEdit() {
       /**
@@ -208,12 +211,13 @@ export default {
           throw new Error(res.error);
         }
         this.editing = false;
-        this.$store.commit("refreshFreets");
+        this.$store.commit("refreshUserFreets");
 
         params.callback();
       } catch (e) {
         this.$set(this.alerts, e, "error");
         setTimeout(() => this.$delete(this.alerts, e), 3000);
+        this.$store.commit("refreshUserFreets");
       }
     },
   },
