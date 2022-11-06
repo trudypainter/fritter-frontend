@@ -96,7 +96,6 @@ export default {
   background-color: yellow;
   border: 1px solid black;
   padding: 20px;
-  padding-bottom: 10px;
   margin: auto;
   margin-top: 10px;
   margin-bottom: 20px;
@@ -114,9 +113,10 @@ export default {
 
 .delete-button {
   width: 160px;
+  margin-top: 10px;
   font-size: 16px;
   font-style: italic;
-  padding: 10px;
+  padding: 0px;
 }
 
 .delete-button:hover {
